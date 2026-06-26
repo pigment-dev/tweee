@@ -1,0 +1,20 @@
+{
+  "_comment": "Rename this file to config.json and deploy it next to index.html. Tweee fetches it on load and preloads these settings for every visitor — handy on GitHub Pages / Netlify where localStorage can't be shared across browsers. Remove keys you don't want to set.",
+
+  "override": false,
+
+  "proxies": [
+    "https://your-name.workers.dev/",
+    "https://your-backup.workers.dev/"
+  ],
+  "proxyMode": "failover",
+
+  "tgProxy": "",
+
+  "themeMode": "auto",
+  "theme": 0,
+  "fa": "\"Yekan Bakh\",sans-serif",
+  "en": "\"Open Sans\",sans-serif",
+  "fsize": 18,
+  "lh": 12
+}
