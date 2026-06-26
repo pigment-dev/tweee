@@ -21,9 +21,9 @@
 
   // ── Settings ──
   const LS="tweee:settings";
-  const DEF={proxies:[],proxyMode:"failover",tgProxy:"",themeMode:"auto",theme:0,fa:'"Yekan Bakh",sans-serif',en:'"Open Sans",sans-serif',fsize:18,lh:12,code:true,note:true,date:true,viewx:true,inlineImg:true,inlineVid:false,incognito:false,tgToken:"",tgChat:""};
+  const DEF={proxies:[],proxyMode:"failover",tgProxy:"",themeMode:"auto",theme:0,fa:'"Yekan Bakh","Vazirmatn",sans-serif',en:'"Open Sans",sans-serif',fsize:18,lh:12,code:true,note:true,date:true,viewx:true,inlineImg:true,inlineVid:false,incognito:false,tgToken:"",tgChat:""};
   // Migrate any legacy single-proxy ("proxy":"…") value into the proxies[] array.
-  function migrate(o){ o=o||{}; if(typeof o.proxy==="string" && o.proxy.trim() && !(Array.isArray(o.proxies)&&o.proxies.length)){ o.proxies=[o.proxy.trim()]; } delete o.proxy; if(typeof o.proxies==="string") o.proxies=splitProxies(o.proxies); return o; }
+  function migrate(o){ o=o||{}; if(typeof o.proxy==="string" && o.proxy.trim() && !(Array.isArray(o.proxies)&&o.proxies.length)){ o.proxies=[o.proxy.trim()]; } delete o.proxy; if(typeof o.proxies==="string") o.proxies=splitProxies(o.proxies); if(o.fa==='"Yekan Bakh",sans-serif') o.fa='"Yekan Bakh","Vazirmatn",sans-serif'; return o; }
   function splitProxies(s){ return String(s||"").split(/[\n,]+/).map(x=>x.trim()).filter(Boolean); }
   let S=Object.assign({},DEF,migrate(Object.assign({},TWEEE_DEFAULTS)));
   try{ const raw=localStorage.getItem(LS); if(raw) S=Object.assign({},S,migrate(JSON.parse(raw))); }catch(_){}
@@ -182,6 +182,7 @@
   const IC_DL='<svg viewBox="0 0 256 256" fill="currentColor"><path d="M224,144v64a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V144a8,8,0,0,1,16,0v56H208V144a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,124.69V32a8,8,0,0,0-16,0v92.69L93.66,98.34a8,8,0,0,0-11.32,11.32Z"/></svg>';
   const IC_LINK='<svg viewBox="0 0 256 256" fill="currentColor"><path d="M165.66,90.34a8,8,0,0,1,0,11.32l-64,64a8,8,0,0,1-11.32-11.32l64-64A8,8,0,0,1,165.66,90.34ZM215.6,40.4a56,56,0,0,0-79.2,0L106.34,70.45a8,8,0,0,0,11.32,11.32l30.06-30a40,40,0,0,1,56.57,56.56l-30.07,30.06a8,8,0,0,0,11.31,11.32L215.6,119.6a56,56,0,0,0,0-79.2ZM138.34,174.22l-30.06,30.06a40,40,0,1,1-56.56-56.57l30.05-30.05a8,8,0,0,0-11.32-11.32L40.4,136.4a56,56,0,0,0,79.2,79.2l30.06-30.07a8,8,0,0,0-11.32-11.31Z"/></svg>';
   const IC_IMG='<svg viewBox="0 0 256 256" fill="currentColor"><path d="M208,32H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM48,48H208v77.38l-24.69-24.7a16,16,0,0,0-22.62,0L53.37,208H48ZM208,208H76l96-96,36,36v60ZM96,120A24,24,0,1,0,72,96,24,24,0,0,0,96,120Zm0-32a8,8,0,1,1-8,8A8,8,0,0,1,96,88Z"/></svg>';
+  const IC_RETRY='<svg viewBox="0 0 256 256" fill="currentColor"><path d="M240,56v48a8,8,0,0,1-8,8H184a8,8,0,0,1,0-16H211.4L184.81,71.64l-.25-.24a80,80,0,1,0-1.67,114.78,8,8,0,0,1,11,11.63A95.44,95.44,0,0,1,128,224h-1.32A96,96,0,1,1,195.75,60L224,85.8V56a8,8,0,1,1,16,0Z"/></svg>';
   function shortHost(u){ try{ return new URL(u).hostname.replace(/^www\./,""); }catch(_){ return "link"; } }
 
   function extOf(url,fb){ const b=String(url).split("?")[0]; const m=b.match(/\.(\w{3,4})$/); if(m) return m[1].toLowerCase(); const f=String(url).match(/[?&]format=(\w+)/); if(f) return f[1].toLowerCase(); return fb; }
@@ -195,10 +196,15 @@
       const inner=isVid
         ? '<video src="'+m.url+'" '+(m.poster?'poster="'+m.poster+'" ':'')+'controls playsinline '+(m.type==="gif"?'autoplay loop muted ':'')+'></video>'
         : '<img src="'+m.url+'" alt="" loading="lazy" referrerpolicy="no-referrer">';
-      const tools='<div class="mtools"><button class="mbtn dl" data-url="'+url+'" data-name="'+name+'" title="Download">'+IC_DL+'</button><button class="mbtn copyurl" data-url="'+url+'" title="Copy media URL">'+IC_LINK+'</button></div>';
-      const fail='<div class="mfail">'+IC_IMG+'<span>Couldn’t load '+(isVid?"video":"image")+'</span><a href="'+url+'" target="_blank" rel="noopener">Open original ↗</a></div>';
+      const dlBtn='<button class="mbtn dl" data-url="'+url+'" data-name="'+name+'" title="Download">'+IC_DL+'<span>Download</span></button>';
+      const cpBtn='<button class="mbtn copyurl" data-url="'+url+'" title="Copy media URL">'+IC_LINK+'<span>Copy link</span></button>';
+      const openBtn='<a class="mbtn open" href="'+url+'" target="_blank" rel="noopener" title="Open original">'+IC_LINK+'<span>Open original</span></a>';
+      const tools='<div class="mtools">'+dlBtn+cpBtn+'</div>';                       // hover overlay (desktop)
+      const bar='<div class="mbar">'+dlBtn+cpBtn+'</div>';                            // below media (touch)
+      const retryBtn='<button class="mbtn retry" title="Try loading again">'+IC_RETRY+'<span>Retry</span></button>';
+      const fail='<div class="mfail">'+IC_IMG+'<span class="mfmsg">Couldn’t load '+(isVid?"video":"image")+'</span><div class="mfacts">'+retryBtn+dlBtn+cpBtn+openBtn+'</div></div>';
       const link='<a class="mlink" href="'+url+'" target="_blank" rel="noopener">'+IC_LINK+'<span>'+esc(shortHost(url))+'</span></a>';
-      return '<div class="mwrap'+(isVid?" vid":"")+'">'+inner+tools+fail+link+'</div>';
+      return '<div class="mwrap'+(isVid?" vid":"")+'">'+inner+tools+fail+link+bar+'</div>';
     }).join("");
     return '<div class="media '+cls+'">'+items+'</div>';
   }
@@ -239,6 +245,15 @@
       img.addEventListener("load",ok); img.addEventListener("error",bad);
     });
     deck.querySelectorAll(".mwrap.vid video").forEach(v=>{ const w=v.closest(".mwrap"); w.classList.add("loaded"); v.addEventListener("error",()=>w.classList.add("failed")); });
+    // Retry a failed image/video — reset its src so the existing load/error handlers run again.
+    deck.querySelectorAll(".mbtn.retry").forEach(b=>b.onclick=()=>{
+      const w=b.closest(".mwrap"); const el=w&&w.querySelector("img,video"); if(!el) return;
+      const src=el.getAttribute("src");
+      w.classList.remove("failed","loaded");
+      el.removeAttribute("src"); void el.offsetWidth; el.setAttribute("src",src);
+      if(el.tagName==="VIDEO"){ try{ el.load(); }catch(_){} w.classList.add("loaded"); }
+      toast("Retrying…","busy");
+    });
   }
   function emptyHTML(){ return '<div class="empty" id="empty"><div class="elogo">'+birdSVG(false)+'</div><div class="ename">Tweee</div><div class="ever">v'+VERSION+' · build '+BUILD+'</div><div class="ehint">Paste a tweet or article URL above and press <b>Fetch</b>.</div></div>'; }
   function showEmpty(){ $("#deck").innerHTML=emptyHTML(); $("#deckfoot").hidden=true; }
@@ -490,7 +505,7 @@
     if(S.inlineVid){ for(const vid of clone.querySelectorAll("video")){ await inl(vid,"src"); if(vid.getAttribute("poster")) await inl(vid,"poster"); } }
     const bodyCls=(!S.date?"no-date ":"")+(!S.viewx?"no-viewx ":"")+(!S.note?"no-note":"");
     const rootVars=":root{--accent:#1d9bf0;--muted:#536471;--shell:"+v('--shell')+";--bg:"+v('--bg')+";--fg:"+v('--fg')+";--bd:"+v('--bd')+";--fa-font:"+v('--fa-font')+";--en-font:"+v('--en-font')+";--fsize:"+v('--fsize')+";--lh:"+v('--lh')+"}";
-    const overrides="html,body{margin:0}.app{display:block}.panel,.bar,.modal-bk,.toast{display:none!important}body{background:"+v('--shell')+";padding:40px 16px}.stage{padding:0}.deck{margin:0 auto}.mtools,.dlbar{display:none}.mwrap::after{display:none}.mwrap .mlink{display:inline-flex}";
+    const overrides="html,body{margin:0}.app{display:block}.panel,.bar,.modal-bk,.toast{display:none!important}body{background:"+v('--shell')+";padding:40px 16px}.stage{padding:0}.deck{margin:0 auto}.mtools,.dlbar,.mbar{display:none!important}.mwrap::after{display:none}.mwrap .mlink{display:inline-flex}";
     const fid=(deck.innerHTML.match(/status\/(\d+)/)||[])[1];
     const dt=resolveTheme();
     const html='<!doctype html>\n<!-- PigmentDev Tweee — https://pigment.dev · github.com/pigment-dev/tweee -->\n'+
@@ -508,12 +523,17 @@
   };
   $("#tgBtn").onclick=async()=>{
     const token=(S.tgToken||"").trim(), chat=(S.tgChat||"").trim();
-    if(!token||!chat){ toast("Set Telegram token & chat ID first","err"); $("#tgToken").closest("details").open=true; return; }
+    if(!token||!chat){ toast("Set your Telegram token & chat ID in Settings → Telegram","err"); $("#settingsModal").classList.add("open"); const tb=document.querySelector('#setTabs .tab[data-tab="telegram"]'); if(tb) tb.click(); return; }
     const deck=$("#deck"); if(deck.querySelector("#empty")||!deck.children.length){ toast("Nothing to send","err"); return; }
     toast("Sending to Telegram…","busy");
     try{
       const {html,name}=await buildExportHtml();
-      const fd=new FormData(); fd.append("chat_id",chat); fd.append("caption","Tweee export"); fd.append("document",new Blob([html],{type:"text/html"}),name);
+      // Caption shows which tweet it is: account name/handle + a short text preview.
+      const root=(lastRoots&&lastRoots[0])||{};
+      const who=((root.name||"").trim()+(root.handle?" @"+String(root.handle).replace(/^@/,""):"")).trim();
+      const snip=String(root.text||"").replace(/\s+/g," ").trim().slice(0,180);
+      const caption=([who,snip].filter(Boolean).join("\n")||"Tweee export").slice(0,1000);
+      const fd=new FormData(); fd.append("chat_id",chat); fd.append("caption",caption); fd.append("document",new Blob([html],{type:"text/html"}),name);
       const tgBase=(S.tgProxy||"").trim().replace(/\/+$/,"")||"https://api.telegram.org";
       const r=await fetch(tgBase+"/bot"+token+"/sendDocument",{method:"POST",body:fd});
       const j=await r.json().catch(()=>({}));

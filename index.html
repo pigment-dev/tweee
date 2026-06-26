@@ -19,7 +19,7 @@
   --ink:#0f1419; --muted:#536471; --line:#e3e8ee; --accent:#1d9bf0;
   --panel:#ffffff; --shell:#f5f7f9;
   --bg:#ffffff; --fg:#15202b; --bd:#e7ecf0;
-  --fa-font:"Yekan Bakh",sans-serif; --en-font:"Open Sans",sans-serif;
+  --fa-font:"Yekan Bakh","Vazirmatn",sans-serif; --en-font:"Open Sans",sans-serif;
   --fsize:18px; --lh:1.2;
   --tgl-off:#c2cbd3; --tgl-bd:#a7b1bb; --tgl-knob:#ffffff;
   --glass:rgba(255,255,255,.72); --glass-bd:rgba(15,20,25,.09); --glass-shadow:0 8px 32px -12px rgba(15,20,25,.22);
@@ -66,6 +66,8 @@ body{background:var(--shell);color:var(--ink);font-family:"Inter",system-ui,-app
   .brand b{display:none}
   .url-wrap{order:3;flex-basis:100%}
   .acts{margin-inline-start:auto}
+  /* full-width dropdown so it never runs off-screen on phones */
+  .histpop{left:0;right:0;width:auto;max-height:70vh}
 }
 .group{margin-bottom:18px}
 .group>label:not(.ios){display:block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
@@ -150,9 +152,9 @@ details summary{font-size:12px;color:var(--accent);cursor:pointer;font-weight:60
 .media img{opacity:0;transition:opacity .35s}
 .mwrap.loaded img{opacity:1}
 .media:not(.n2) img,.media:not(.n2) video{height:auto;object-fit:contain}
-.mfail{position:absolute;inset:0;z-index:2;display:none;flex-direction:column;align-items:center;justify-content:center;gap:7px;background:var(--bd);color:var(--muted);font-family:"Inter",sans-serif;font-size:12px;text-align:center;padding:14px}
-.mfail svg{width:28px;height:28px;opacity:.45}
-.mfail a{color:var(--accent);font-weight:600;text-decoration:none}
+.mfail{position:absolute;inset:0;z-index:2;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:var(--bd);color:var(--muted);font-family:"Inter",sans-serif;font-size:12px;text-align:center;padding:14px}
+.mfail>svg{width:28px;height:28px;opacity:.45}
+.mfacts{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .mwrap.failed .mfail{display:flex}
 .mwrap.failed img{display:none}
 .mlink{position:absolute;left:8px;bottom:8px;z-index:2;display:none;align-items:center;gap:5px;max-width:calc(100% - 16px);font-family:"Inter",sans-serif;font-size:11px;color:#fff;background:rgba(15,20,25,.74);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);padding:4px 9px;border-radius:8px;text-decoration:none}
@@ -160,9 +162,20 @@ details summary{font-size:12px;color:var(--accent);cursor:pointer;font-weight:60
 .mlink span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mtools{position:absolute;top:8px;inset-inline-end:8px;display:flex;gap:6px;z-index:2;opacity:0;transition:opacity .15s}
 .mwrap:hover .mtools,.mwrap:focus-within .mtools{opacity:1}
-@media (hover:none){.mtools{opacity:1}}
-.mbtn{width:34px;height:34px;border-radius:10px;background:rgba(15,20,25,.72);color:#fff;display:grid;place-items:center;border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(6px);padding:0;cursor:pointer}
-.mbtn:hover{background:rgba(15,20,25,.92)}.mbtn svg{width:17px;height:17px}
+.mtools .mbtn span{display:none}
+.mbtn{width:34px;height:34px;border-radius:10px;background:rgba(15,20,25,.72);color:#fff;display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(6px);padding:0;cursor:pointer;font:inherit;font-size:12.5px;font-weight:600;text-decoration:none}
+.mbtn:hover{background:rgba(15,20,25,.92)}.mbtn svg{width:17px;height:17px;flex:none}
+/* labeled buttons — below the media on touch devices and inside the failure box */
+.mbar{display:none;gap:8px;padding:8px 10px;border-top:1px solid var(--bd)}
+.mbar .mbtn,.mfacts .mbtn{width:auto;height:34px;padding:0 12px;border-radius:9px;background:rgba(127,127,127,.14);color:var(--fg);border:1px solid var(--bd);backdrop-filter:none}
+.mbar .mbtn{flex:1}
+.mbar .mbtn:hover,.mfacts .mbtn:hover{background:rgba(127,127,127,.26)}
+.mbar .mbtn svg,.mfacts .mbtn svg{width:15px;height:15px}
+@media (hover:none){
+  .mtools{display:none}
+  .mbar{display:flex}
+  .media img,.media video{height:auto;object-fit:contain}
+}
 .dlbar{position:absolute;left:0;right:0;bottom:0;height:30px;background:rgba(15,20,25,.82);backdrop-filter:blur(6px);display:flex;align-items:center;gap:8px;padding:0 8px 0 10px;z-index:3}
 .dlbar-track{flex:1;height:6px;border-radius:6px;background:rgba(255,255,255,.25);overflow:hidden}
 .dlbar-fill{height:100%;width:0;background:var(--accent);transition:width .15s}
@@ -241,7 +254,7 @@ body.no-date.no-viewx .foot{display:none}
 .copybtn{position:absolute;top:10px;right:10px;background:#1f2733;border:1px solid #313c4a;color:#cdd6e0;padding:5px 12px;border-radius:8px;font-size:12px;font-weight:600;z-index:2}
 pre.hl{margin:0;background:#0d1117;color:#abb2bf;padding:16px 18px;overflow:auto;font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;font-size:12.3px;line-height:1.65;direction:ltr;text-align:left;white-space:pre}
 .hl .kw{color:#c678dd}.hl .st{color:#98c379}.hl .cm{color:#6b7785;font-style:italic}.hl .nu{color:#d19a66}.hl .fn{color:#61afef}
-.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(18px);background:#16a34a;color:#fff;padding:11px 20px;border-radius:11px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:60;box-shadow:0 12px 30px -8px rgba(0,0,0,.4);max-width:80vw;text-align:center}
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(18px);background:#16a34a;color:#fff;padding:11px 22px;border-radius:11px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:60;box-shadow:0 12px 30px -8px rgba(0,0,0,.4);max-width:min(560px,calc(100vw - 24px));width:max-content;text-align:center;direction:ltr;white-space:normal}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.err{background:#dc2626}.toast.busy{background:#1d6dc0}
 
@@ -327,7 +340,7 @@ pre.hl{margin:0;background:#0d1117;color:#abb2bf;padding:16px 18px;overflow:auto
 
         <div class="group"><label>Persian font (RTL)</label>
           <select id="faFont">
-            <option value='"Yekan Bakh",sans-serif'>Yekan Bakh</option>
+            <option value='"Yekan Bakh","Vazirmatn",sans-serif'>Yekan Bakh (local) · Vazirmatn</option>
             <option value='"Vazirmatn",sans-serif'>Vazirmatn</option>
             <option value='"Noto Naskh Arabic",serif'>Noto Naskh Arabic</option>
             <option value='Tahoma,sans-serif'>Tahoma (system)</option>
@@ -557,9 +570,9 @@ pre.hl{margin:0;background:#0d1117;color:#abb2bf;padding:16px 18px;overflow:auto
 
   // ── Settings ──
   const LS="tweee:settings";
-  const DEF={proxies:[],proxyMode:"failover",tgProxy:"",themeMode:"auto",theme:0,fa:'"Yekan Bakh",sans-serif',en:'"Open Sans",sans-serif',fsize:18,lh:12,code:true,note:true,date:true,viewx:true,inlineImg:true,inlineVid:false,incognito:false,tgToken:"",tgChat:""};
+  const DEF={proxies:[],proxyMode:"failover",tgProxy:"",themeMode:"auto",theme:0,fa:'"Yekan Bakh","Vazirmatn",sans-serif',en:'"Open Sans",sans-serif',fsize:18,lh:12,code:true,note:true,date:true,viewx:true,inlineImg:true,inlineVid:false,incognito:false,tgToken:"",tgChat:""};
   // Migrate any legacy single-proxy ("proxy":"…") value into the proxies[] array.
-  function migrate(o){ o=o||{}; if(typeof o.proxy==="string" && o.proxy.trim() && !(Array.isArray(o.proxies)&&o.proxies.length)){ o.proxies=[o.proxy.trim()]; } delete o.proxy; if(typeof o.proxies==="string") o.proxies=splitProxies(o.proxies); return o; }
+  function migrate(o){ o=o||{}; if(typeof o.proxy==="string" && o.proxy.trim() && !(Array.isArray(o.proxies)&&o.proxies.length)){ o.proxies=[o.proxy.trim()]; } delete o.proxy; if(typeof o.proxies==="string") o.proxies=splitProxies(o.proxies); if(o.fa==='"Yekan Bakh",sans-serif') o.fa='"Yekan Bakh","Vazirmatn",sans-serif'; return o; }
   function splitProxies(s){ return String(s||"").split(/[\n,]+/).map(x=>x.trim()).filter(Boolean); }
   let S=Object.assign({},DEF,migrate(Object.assign({},TWEEE_DEFAULTS)));
   try{ const raw=localStorage.getItem(LS); if(raw) S=Object.assign({},S,migrate(JSON.parse(raw))); }catch(_){}
@@ -718,6 +731,7 @@ pre.hl{margin:0;background:#0d1117;color:#abb2bf;padding:16px 18px;overflow:auto
   const IC_DL='<svg viewBox="0 0 256 256" fill="currentColor"><path d="M224,144v64a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V144a8,8,0,0,1,16,0v56H208V144a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,124.69V32a8,8,0,0,0-16,0v92.69L93.66,98.34a8,8,0,0,0-11.32,11.32Z"/></svg>';
   const IC_LINK='<svg viewBox="0 0 256 256" fill="currentColor"><path d="M165.66,90.34a8,8,0,0,1,0,11.32l-64,64a8,8,0,0,1-11.32-11.32l64-64A8,8,0,0,1,165.66,90.34ZM215.6,40.4a56,56,0,0,0-79.2,0L106.34,70.45a8,8,0,0,0,11.32,11.32l30.06-30a40,40,0,0,1,56.57,56.56l-30.07,30.06a8,8,0,0,0,11.31,11.32L215.6,119.6a56,56,0,0,0,0-79.2ZM138.34,174.22l-30.06,30.06a40,40,0,1,1-56.56-56.57l30.05-30.05a8,8,0,0,0-11.32-11.32L40.4,136.4a56,56,0,0,0,79.2,79.2l30.06-30.07a8,8,0,0,0-11.32-11.31Z"/></svg>';
   const IC_IMG='<svg viewBox="0 0 256 256" fill="currentColor"><path d="M208,32H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM48,48H208v77.38l-24.69-24.7a16,16,0,0,0-22.62,0L53.37,208H48ZM208,208H76l96-96,36,36v60ZM96,120A24,24,0,1,0,72,96,24,24,0,0,0,96,120Zm0-32a8,8,0,1,1-8,8A8,8,0,0,1,96,88Z"/></svg>';
+  const IC_RETRY='<svg viewBox="0 0 256 256" fill="currentColor"><path d="M240,56v48a8,8,0,0,1-8,8H184a8,8,0,0,1,0-16H211.4L184.81,71.64l-.25-.24a80,80,0,1,0-1.67,114.78,8,8,0,0,1,11,11.63A95.44,95.44,0,0,1,128,224h-1.32A96,96,0,1,1,195.75,60L224,85.8V56a8,8,0,1,1,16,0Z"/></svg>';
   function shortHost(u){ try{ return new URL(u).hostname.replace(/^www\./,""); }catch(_){ return "link"; } }
 
   function extOf(url,fb){ const b=String(url).split("?")[0]; const m=b.match(/\.(\w{3,4})$/); if(m) return m[1].toLowerCase(); const f=String(url).match(/[?&]format=(\w+)/); if(f) return f[1].toLowerCase(); return fb; }
@@ -731,10 +745,15 @@ pre.hl{margin:0;background:#0d1117;color:#abb2bf;padding:16px 18px;overflow:auto
       const inner=isVid
         ? '<video src="'+m.url+'" '+(m.poster?'poster="'+m.poster+'" ':'')+'controls playsinline '+(m.type==="gif"?'autoplay loop muted ':'')+'></video>'
         : '<img src="'+m.url+'" alt="" loading="lazy" referrerpolicy="no-referrer">';
-      const tools='<div class="mtools"><button class="mbtn dl" data-url="'+url+'" data-name="'+name+'" title="Download">'+IC_DL+'</button><button class="mbtn copyurl" data-url="'+url+'" title="Copy media URL">'+IC_LINK+'</button></div>';
-      const fail='<div class="mfail">'+IC_IMG+'<span>Couldn’t load '+(isVid?"video":"image")+'</span><a href="'+url+'" target="_blank" rel="noopener">Open original ↗</a></div>';
+      const dlBtn='<button class="mbtn dl" data-url="'+url+'" data-name="'+name+'" title="Download">'+IC_DL+'<span>Download</span></button>';
+      const cpBtn='<button class="mbtn copyurl" data-url="'+url+'" title="Copy media URL">'+IC_LINK+'<span>Copy link</span></button>';
+      const openBtn='<a class="mbtn open" href="'+url+'" target="_blank" rel="noopener" title="Open original">'+IC_LINK+'<span>Open original</span></a>';
+      const tools='<div class="mtools">'+dlBtn+cpBtn+'</div>';                       // hover overlay (desktop)
+      const bar='<div class="mbar">'+dlBtn+cpBtn+'</div>';                            // below media (touch)
+      const retryBtn='<button class="mbtn retry" title="Try loading again">'+IC_RETRY+'<span>Retry</span></button>';
+      const fail='<div class="mfail">'+IC_IMG+'<span class="mfmsg">Couldn’t load '+(isVid?"video":"image")+'</span><div class="mfacts">'+retryBtn+dlBtn+cpBtn+openBtn+'</div></div>';
       const link='<a class="mlink" href="'+url+'" target="_blank" rel="noopener">'+IC_LINK+'<span>'+esc(shortHost(url))+'</span></a>';
-      return '<div class="mwrap'+(isVid?" vid":"")+'">'+inner+tools+fail+link+'</div>';
+      return '<div class="mwrap'+(isVid?" vid":"")+'">'+inner+tools+fail+link+bar+'</div>';
     }).join("");
     return '<div class="media '+cls+'">'+items+'</div>';
   }
@@ -775,6 +794,15 @@ pre.hl{margin:0;background:#0d1117;color:#abb2bf;padding:16px 18px;overflow:auto
       img.addEventListener("load",ok); img.addEventListener("error",bad);
     });
     deck.querySelectorAll(".mwrap.vid video").forEach(v=>{ const w=v.closest(".mwrap"); w.classList.add("loaded"); v.addEventListener("error",()=>w.classList.add("failed")); });
+    // Retry a failed image/video — reset its src so the existing load/error handlers run again.
+    deck.querySelectorAll(".mbtn.retry").forEach(b=>b.onclick=()=>{
+      const w=b.closest(".mwrap"); const el=w&&w.querySelector("img,video"); if(!el) return;
+      const src=el.getAttribute("src");
+      w.classList.remove("failed","loaded");
+      el.removeAttribute("src"); void el.offsetWidth; el.setAttribute("src",src);
+      if(el.tagName==="VIDEO"){ try{ el.load(); }catch(_){} w.classList.add("loaded"); }
+      toast("Retrying…","busy");
+    });
   }
   function emptyHTML(){ return '<div class="empty" id="empty"><div class="elogo">'+birdSVG(false)+'</div><div class="ename">Tweee</div><div class="ever">v'+VERSION+' · build '+BUILD+'</div><div class="ehint">Paste a tweet or article URL above and press <b>Fetch</b>.</div></div>'; }
   function showEmpty(){ $("#deck").innerHTML=emptyHTML(); $("#deckfoot").hidden=true; }
@@ -1026,7 +1054,7 @@ pre.hl{margin:0;background:#0d1117;color:#abb2bf;padding:16px 18px;overflow:auto
     if(S.inlineVid){ for(const vid of clone.querySelectorAll("video")){ await inl(vid,"src"); if(vid.getAttribute("poster")) await inl(vid,"poster"); } }
     const bodyCls=(!S.date?"no-date ":"")+(!S.viewx?"no-viewx ":"")+(!S.note?"no-note":"");
     const rootVars=":root{--accent:#1d9bf0;--muted:#536471;--shell:"+v('--shell')+";--bg:"+v('--bg')+";--fg:"+v('--fg')+";--bd:"+v('--bd')+";--fa-font:"+v('--fa-font')+";--en-font:"+v('--en-font')+";--fsize:"+v('--fsize')+";--lh:"+v('--lh')+"}";
-    const overrides="html,body{margin:0}.app{display:block}.panel,.bar,.modal-bk,.toast{display:none!important}body{background:"+v('--shell')+";padding:40px 16px}.stage{padding:0}.deck{margin:0 auto}.mtools,.dlbar{display:none}.mwrap::after{display:none}.mwrap .mlink{display:inline-flex}";
+    const overrides="html,body{margin:0}.app{display:block}.panel,.bar,.modal-bk,.toast{display:none!important}body{background:"+v('--shell')+";padding:40px 16px}.stage{padding:0}.deck{margin:0 auto}.mtools,.dlbar,.mbar{display:none!important}.mwrap::after{display:none}.mwrap .mlink{display:inline-flex}";
     const fid=(deck.innerHTML.match(/status\/(\d+)/)||[])[1];
     const dt=resolveTheme();
     const html='<!doctype html>\n<!-- PigmentDev Tweee — https://pigment.dev · github.com/pigment-dev/tweee -->\n'+
@@ -1044,12 +1072,17 @@ pre.hl{margin:0;background:#0d1117;color:#abb2bf;padding:16px 18px;overflow:auto
   };
   $("#tgBtn").onclick=async()=>{
     const token=(S.tgToken||"").trim(), chat=(S.tgChat||"").trim();
-    if(!token||!chat){ toast("Set Telegram token & chat ID first","err"); $("#tgToken").closest("details").open=true; return; }
+    if(!token||!chat){ toast("Set your Telegram token & chat ID in Settings → Telegram","err"); $("#settingsModal").classList.add("open"); const tb=document.querySelector('#setTabs .tab[data-tab="telegram"]'); if(tb) tb.click(); return; }
     const deck=$("#deck"); if(deck.querySelector("#empty")||!deck.children.length){ toast("Nothing to send","err"); return; }
     toast("Sending to Telegram…","busy");
     try{
       const {html,name}=await buildExportHtml();
-      const fd=new FormData(); fd.append("chat_id",chat); fd.append("caption","Tweee export"); fd.append("document",new Blob([html],{type:"text/html"}),name);
+      // Caption shows which tweet it is: account name/handle + a short text preview.
+      const root=(lastRoots&&lastRoots[0])||{};
+      const who=((root.name||"").trim()+(root.handle?" @"+String(root.handle).replace(/^@/,""):"")).trim();
+      const snip=String(root.text||"").replace(/\s+/g," ").trim().slice(0,180);
+      const caption=([who,snip].filter(Boolean).join("\n")||"Tweee export").slice(0,1000);
+      const fd=new FormData(); fd.append("chat_id",chat); fd.append("caption",caption); fd.append("document",new Blob([html],{type:"text/html"}),name);
       const tgBase=(S.tgProxy||"").trim().replace(/\/+$/,"")||"https://api.telegram.org";
       const r=await fetch(tgBase+"/bot"+token+"/sendDocument",{method:"POST",body:fd});
       const j=await r.json().catch(()=>({}));

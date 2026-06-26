@@ -55,16 +55,31 @@ Any URL handed to Tweee is fetched automatically on load — `https://pigment-de
 
 Open <https://pigment-dev.github.io/tweee/> in **Safari → Share → Add to Home Screen**. It installs with the bird icon and launches full-screen like a native app (iOS web-app meta tags + a 180×180 touch icon are built in). Settings and history persist on that device.
 
-### Share Sheet → Shortcut (one tap from the X app or Safari)
+### Share Sheet → Shortcut (one-tap install)
 
-1. Open **Shortcuts** → **+** → name it **"Open in Tweee"**.
-2. Tap the ⓘ (settings) → enable **Show in Share Sheet**, and set **Share Sheet Types** to **URLs** (and **Text** if you like).
-3. Add action **URL Encode** → set its input to **Shortcut Input**.
-4. Add action **Text** → `https://pigment-dev.github.io/tweee/?url=` immediately followed by the **URL Encoded** variable.
-5. Add action **Open URLs** → set it to that **Text**.
-6. Save. Now in the X app (or Safari) tap **Share → Open in Tweee** and the post opens already rendered.
+Install the ready-made shortcut, then from the **X app or Safari** tap **Share → Open in Tweee** and the post opens already rendered:
 
-> A Shortcut can't *install* the home-screen app for you (iOS only allows that via Safari's **Add to Home Screen**), and it can't be shared as a ready-made iCloud link from here — you build it once with the steps above. After that, loading tweets is the one-tap flow. Using your own deploy? Swap in your URL (for a GitHub **project** page keep the trailing slash — `…/tweee/?url=…`).
+<div align="center">
+
+### ➜ [📲 Add “Open in Tweee” to iOS Shortcuts](https://www.icloud.com/shortcuts/0abac3393cad4413b4b28951f20de423)
+
+[![Add to iOS Shortcuts](https://img.shields.io/badge/📲_Add_to-iOS_Shortcuts-0a84ff?style=for-the-badge&logo=apple&logoColor=white)](https://www.icloud.com/shortcuts/0abac3393cad4413b4b28951f20de423)
+
+</div>
+
+> First time only: open **Shortcuts → Settings → Advanced → Allow Running Scripts**, then tap the link and **Add Shortcut**.
+
+<details><summary>Prefer to build it yourself?</summary>
+
+1. **Shortcuts → +** → name it **"Open in Tweee"**.
+2. Tap ⓘ → enable **Show in Share Sheet**, set **Share Sheet Types** to **URLs** (and **Text**).
+3. Add **URL Encode** → input = **Shortcut Input**.
+4. Add **Text** → `https://pigment-dev.github.io/tweee/?url=` followed by the **URL Encoded** variable.
+5. Add **Open URLs** → set it to that **Text**, then **Save**.
+
+</details>
+
+> Using your own deploy? Swap in your URL (for a GitHub **project** page keep the trailing slash — `…/tweee/?url=…`).
 
 ## Browser extensions
 
