@@ -1,0 +1,40 @@
+{
+  "manifest_version": 2,
+  "name": "PigmentDev Tweee",
+  "version": "2.4.0",
+  "description": "Adds a bird to the address bar on X. On a supported tweet or article it turns colored; click it to open the post in your Tweee reader.",
+  "homepage_url": "https://github.com/pigment-dev/tweee",
+  "icons": {
+    "48": "icons/icon-color-48.png",
+    "96": "icons/icon-color-96.png",
+    "128": "icons/icon-color-128.png"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "tweee@pigment.dev",
+      "strict_min_version": "115.0"
+    }
+  },
+  "permissions": [
+    "tabs",
+    "storage",
+    "*://x.com/*",
+    "*://twitter.com/*"
+  ],
+  "page_action": {
+    "default_icon": {
+      "48": "icons/icon-gray-48.png",
+      "96": "icons/icon-gray-96.png"
+    },
+    "default_title": "Tweee — open a tweet or article to enable"
+  },
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": false
+  }
+}

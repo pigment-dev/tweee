@@ -1,4 +1,5 @@
 // PigmentDev Tweee — address-bar page action for X
+const DEFAULT_URL = "https://pigment-dev.github.io/tweee/";
 const SUPPORTED = /^https?:\/\/(x\.com|twitter\.com)\/(?:[^\/?#]+\/(?:status|article)\/\d+|i\/article\/)/i;
 const ON_SITE   = /^https?:\/\/(x\.com|twitter\.com)\//i;
 
@@ -26,9 +27,10 @@ browser.tabs.onActivated.addListener(async ({ tabId }) => {
 
 browser.pageAction.onClicked.addListener(async (tab) => {
   const { appUrl, useBuiltin } = await browser.storage.local.get(["appUrl", "useBuiltin"]);
-  const hosted = (appUrl || "").trim();
-  // Firefox can't open file:// from an extension, so fall back to the bundled copy.
-  const wantsBuiltin = useBuiltin !== false || !hosted || /^file:/i.test(hosted);
+  // Default to the hosted app; use the bundled offline copy only if explicitly chosen
+  // (or if a file:// URL was set, which Firefox can't open from an extension).
+  const hosted = (appUrl || "").trim() || DEFAULT_URL;
+  const wantsBuiltin = useBuiltin === true || /^file:/i.test(hosted);
   const base = wantsBuiltin ? browser.runtime.getURL("tweee.html") : hosted;
 
   let target = base;

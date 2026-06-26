@@ -13,7 +13,7 @@ Per-line RTL/LTR typesetting · quotes & threads · articles · code blocks · i
 ![Dependencies](https://img.shields.io/badge/dependencies-0-7d8893.svg)
 ![Firefox](https://img.shields.io/badge/Firefox-extension-orange.svg)
 
-[Web app](#quick-start) · [Deploy your own](#deploy-it-host-your-own) · [Firefox extension](./extension/README.md) · [Cloudflare proxy](#cors-proxy-optional)
+[Web app](#quick-start) · [iPhone](#use-it-on-iphone) · [Extensions](#browser-extensions) · [Deploy your own](#deploy-it-host-your-own) · [Cloudflare proxy](#cors-proxy-optional)
 
 </div>
 
@@ -45,7 +45,33 @@ open index.html
 # Or host it (GitHub Pages, Cloudflare Pages, Netlify, your nginx…)
 ```
 
-Paste a tweet URL and press **Fetch**. You can also deep-link: `https://your-host/?url=<tweet-url>` auto-fetches on load (this is what the Firefox extension uses).
+Paste a tweet URL and press **Fetch**. You can also deep-link: `https://pigment-dev.github.io/tweee/?url=<tweet-url>` auto-fetches on load (this is what the extensions and the iPhone shortcut use).
+
+## Use it on iPhone
+
+Any URL handed to Tweee is fetched automatically on load — `https://pigment-dev.github.io/tweee/?url=<tweet-url>` — so you can install it like an app and wire up the Share Sheet.
+
+### Add to Home Screen (web app / PWA)
+
+Open <https://pigment-dev.github.io/tweee/> in **Safari → Share → Add to Home Screen**. It installs with the bird icon and launches full-screen like a native app (iOS web-app meta tags + a 180×180 touch icon are built in). Settings and history persist on that device.
+
+### Share Sheet → Shortcut (one tap from the X app or Safari)
+
+1. Open **Shortcuts** → **+** → name it **"Open in Tweee"**.
+2. Tap the ⓘ (settings) → enable **Show in Share Sheet**, and set **Share Sheet Types** to **URLs** (and **Text** if you like).
+3. Add action **URL Encode** → set its input to **Shortcut Input**.
+4. Add action **Text** → `https://pigment-dev.github.io/tweee/?url=` immediately followed by the **URL Encoded** variable.
+5. Add action **Open URLs** → set it to that **Text**.
+6. Save. Now in the X app (or Safari) tap **Share → Open in Tweee** and the post opens already rendered.
+
+> A Shortcut can't *install* the home-screen app for you (iOS only allows that via Safari's **Add to Home Screen**), and it can't be shared as a ready-made iCloud link from here — you build it once with the steps above. After that, loading tweets is the one-tap flow. Using your own deploy? Swap in your URL (for a GitHub **project** page keep the trailing slash — `…/tweee/?url=…`).
+
+## Browser extensions
+
+A companion extension puts a bird on X. It turns **colored** on a supported tweet/article; clicking it opens Tweee with the post pre-loaded. By default it opens the hosted app at <https://pigment-dev.github.io/tweee/> — change it (or switch to the bundled offline copy) in the extension's options.
+
+- **Firefox** — install [`tweee-firefox.xpi`](./tweee-firefox.xpi) (or load `extension-firefox/` via `about:debugging`). See [extension-firefox/README.md](./extension-firefox/README.md).
+- **Chrome / Edge / Brave** — open `chrome://extensions`, enable **Developer mode**, **Load unpacked** → pick the `extension-chrome/` folder (or unzip [`tweee-chrome.zip`](./tweee-chrome.zip)).
 
 ## Deploy it (host your own)
 
@@ -183,9 +209,6 @@ You can also bake defaults straight into the file: edit the `TWEEE_DEFAULTS` blo
 > [!TIP]
 > Using the **Firefox extension** with a hosted app? Put your proxies in `config.json` on the host. When the extension opens `https://your-host/?url=…`, Tweee loads that config automatically — no per-browser setup.
 
-## Firefox extension
-
-A companion extension puts a bird in the **address bar** on X. It turns **colored** on a supported tweet/article; clicking it opens your hosted Tweee app with the post pre-loaded. See [extension/README.md](./extension/README.md).
 
 ## Customization
 

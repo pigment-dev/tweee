@@ -1,28 +1,22 @@
-# Simple workflow for deploying static content to GitHub Pages
-name: Deploy static content to Pages
+# Build the extension bundles, stamp a version, deploy the site to GitHub Pages,
+# and commit the rebuilt files back so a plain `git pull` always has the latest.
+name: Deploy to Pages
 
 on:
-  # Runs on pushes targeting the default branch
   push:
     branches: ["main"]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
-  contents: read
+  contents: write   # commit rebuilt bundles back
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
-  # Single deploy job since we're just deploying
   deploy:
     environment:
       name: github-pages
@@ -31,13 +25,53 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Rebuild extension bundles from index.html
+        run: node build-extension.js
+
+      - name: Stamp version.json (web app uses this to auto-refresh)
+        env:
+          SHA: ${{ github.sha }}
+        run: |
+          node -e '
+            const fs=require("fs");
+            const h=fs.readFileSync("index.html","utf8");
+            const version=(h.match(/VERSION="([^"]+)"/)||[])[1]||"0";
+            const build=(process.env.SHA||"dev").slice(0,7);
+            fs.writeFileSync("version.json", JSON.stringify({version,build},null,2)+"\n");
+            console.log("version.json ->", version, build);
+          '
+
+      - name: Repackage extension zips
+        run: |
+          (cd extension-firefox && zip -r -X ../tweee-firefox.xpi . -x ".DS_Store" -x "*/.DS_Store")
+          (cd extension-chrome  && zip -r -X ../tweee-chrome.zip  . -x ".DS_Store" -x "*/.DS_Store")
+
+      - name: Commit rebuilt files back
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add version.json extension-firefox extension-chrome tweee-firefox.xpi tweee-chrome.zip
+          if git diff --cached --quiet; then
+            echo "Nothing to commit."
+          else
+            git commit -m "chore: rebuild bundles + version stamp [skip ci]"
+            git push || echo "push skipped (non-fast-forward)"
+          fi
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
           path: '.'
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5

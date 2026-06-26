@@ -2,7 +2,7 @@
 (function(){
   "use strict";
   const $=s=>document.querySelector(s);
-  const APP="PigmentDev Tweee", VERSION="2.3.0", BUILD="2026-06-26";
+  const APP="PigmentDev Tweee", VERSION="2.4.0", BUILD="2026-06-26";
   const FONTS="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&family=Noto+Naskh+Arabic&family=Source+Serif+4&family=Lora&family=Merriweather&family=Playfair+Display&family=PT+Serif&family=EB+Garamond&family=Noto+Serif&family=Open+Sans&family=Roboto&family=Work+Sans&family=JetBrains+Mono&family=Inter&display=swap";
 
   // ── Host-owner defaults ──────────────────────────────────────────────
@@ -551,6 +551,22 @@
     try{ await navigator.clipboard.writeText(link); toast("Settings link copied ✓","ok"); }catch(_){ prompt("Copy this link:",link); }
   };
 
+  // ── Auto-update: poll version.json (written on each deploy) and refresh when it changes ──
+  let _build=null;
+  async function checkUpdate(){
+    try{
+      const r=await fetch("version.json?_="+Date.now(),{cache:"no-store"});
+      if(!r.ok) return;
+      const v=await r.json(); const b=String(v.build||v.version||"");
+      if(!b) return;
+      if(_build===null){ _build=b; return; }            // baseline on first load
+      if(b!==_build){ _build=b;
+        if(!lastRoots){ location.reload(); }            // nothing open → refresh silently
+        else toast("New version available — refresh to update","busy");
+      }
+    }catch(_){}
+  }
+
   // ── init ──
   (async function init(){
     // Host-wide config.json (next to this file). { override:true } lets a host
@@ -560,11 +576,17 @@
       if(r.ok){ const cfg=await r.json(); applyIncoming(cfg, cfg&&cfg.override===true); }
     }catch(_){}
     applySettings(); renderHist(); showEmpty();
+    checkUpdate(); window.addEventListener("focus",checkUpdate); setInterval(checkUpdate,300000);
     const params=new URLSearchParams(location.search);
     const cfgParam=params.get("cfg");
     if(cfgParam){ try{ applyIncoming(JSON.parse(b64u.dec(cfgParam)),true); toast("Settings applied from link ✓","ok"); }catch(_){} }
+    // Auto-fetch when a URL is handed in via ?url= / ?u= / ?tweet= / ?id= (or in the hash).
+    // URLSearchParams already decodes, so don't decode again. Fall back to scanning the raw
+    // href for an x.com/twitter link so messy iOS share-sheet URLs still work.
+    const dec1=s=>{ try{ return decodeURIComponent(s); }catch(_){ return s; } };
     let incoming=params.get("url")||params.get("u")||params.get("tweet")||params.get("id")||"";
-    if(!incoming && location.hash){ const h=location.hash.match(/(?:url|u|tweet|id)=([^&]+)/); if(h) incoming=decodeURIComponent(h[1]); }
-    if(incoming){ $("#url").value=decodeURIComponent(incoming); run(); }
+    if(!incoming && location.hash){ const h=location.hash.match(/(?:url|u|tweet|id)=([^&]+)/); if(h) incoming=dec1(h[1]); }
+    if(!incoming){ const m=dec1(location.href).match(/https?:\/\/(?:x|twitter|mobile\.twitter)\.com\/\S+/i); if(m) incoming=m[0]; }
+    if(incoming){ $("#url").value=incoming; run(); }
   })();
 })();
