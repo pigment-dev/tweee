@@ -6,7 +6,8 @@
   "homepage_url": "https://github.com/pigment-dev/tweee",
   "icons": {
     "48": "icons/icon-color-48.png",
-    "96": "icons/icon-color-96.png"
+    "96": "icons/icon-color-96.png",
+    "128": "icons/icon-color-128.png"
   },
   "permissions": [
     "tabs",

@@ -11,7 +11,8 @@ Per-line RTL/LTR typesetting · quotes & threads · articles · code blocks · i
 [![License: MIT](https://img.shields.io/badge/License-MIT-1d9bf0.svg)](#license)
 ![Single file](https://img.shields.io/badge/app-single%20HTML-16a34a.svg)
 ![Dependencies](https://img.shields.io/badge/dependencies-0-7d8893.svg)
-![Firefox](https://img.shields.io/badge/Firefox-extension-orange.svg)
+![Firefox](https://img.shields.io/badge/Firefox-extension-orange.svg?logo=firefoxbrowser&logoColor=white)
+![Chrome](https://img.shields.io/badge/Chrome-extension-4285F4.svg?logo=googlechrome&logoColor=white)
 
 [Web app](#quick-start) · [iPhone](#use-it-on-iphone) · [Extensions](#browser-extensions) · [Deploy your own](#deploy-it-host-your-own) · [Cloudflare proxy](#cors-proxy-optional)
 
