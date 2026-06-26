@@ -434,6 +434,11 @@
     setStatus("Loaded "+roots.length+"/"+ids.length+" ✓"+(lastErr?(" · some failed: "+lastErr):""), lastErr?"err":"ok");
   }
   $("#fetchBtn").onclick=run;
+  // Brand acts as Home: clear the input, reset to the empty state, and tidy the URL.
+  function goHome(){ $("#url").value=""; setStatus(""); lastRoots=null; showEmpty();
+    try{ history.replaceState(null,"",location.pathname); }catch(_){} }
+  const brandEl=document.querySelector(".brand");
+  if(brandEl){ brandEl.title="Home"; brandEl.setAttribute("role","button"); brandEl.onclick=goHome; }
   $("#renderManual").onclick=()=>{
     const text=$("#mText").value; if(!text.trim()){ setStatus("Paste some text first.","err"); return; }
     const roots=[{name:$("#mName").value.trim(),handle:$("#mHandle").value.trim(),avatar:"",text,media:[],isArticle:false,dateMs:Date.now(),url:($("#url").value.match(/https?:\/\/\S+/)||[""])[0],quote:null}];

@@ -16,6 +16,11 @@ Per-line RTL/LTR typesetting · quotes & threads · articles · code blocks · i
 
 [Web app](#quick-start) · [iPhone](#use-it-on-iphone) · [Extensions](#browser-extensions) · [Deploy your own](#deploy-it-host-your-own) · [Cloudflare proxy](#cors-proxy-optional)
 
+<br>
+
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/pigment-dev/tweee)
+[![Add to iOS Shortcuts](https://img.shields.io/badge/📲_Add_to-iOS_Shortcuts-0a84ff?style=for-the-badge&logo=apple&logoColor=white)](https://www.icloud.com/shortcuts/0abac3393cad4413b4b28951f20de423)
+
 </div>
 
 ---
