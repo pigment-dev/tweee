@@ -31,14 +31,17 @@ jobs:
         with:
           node-version: 20
 
-      - name: Stamp version.json (web app uses this to auto-refresh)
+      - name: Stamp version.json (auto-increments the patch each deploy)
         env:
           SHA: ${{ github.sha }}
+          RUN: ${{ github.run_number }}
         run: |
           node -e '
             const fs=require("fs");
             const h=fs.readFileSync("index.html","utf8");
-            const version=(h.match(/VERSION="([^"]+)"/)||[])[1]||"0";
+            const base=(h.match(/VERSION="([^"]+)"/)||[])[1]||"0.0.0";
+            const mm=base.split(".").slice(0,2).join(".");      // major.minor from index.html
+            const version=mm+"."+(process.env.RUN||"0");          // e.g. 2.5.<run number>
             const build=(process.env.SHA||"dev").slice(0,7);
             fs.writeFileSync("version.json", JSON.stringify({version,build},null,2)+"\n");
             console.log("version.json ->", version, build);

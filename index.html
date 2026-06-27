@@ -45,7 +45,8 @@ body{background:var(--shell);color:var(--ink);font-family:"Inter",system-ui,-app
 .url-wrap{position:relative;flex:1;min-width:0;display:flex;align-items:center;gap:8px}
 .url-field{position:relative;flex:1;min-width:0;display:flex;align-items:center}
 .url-field input{flex:1;min-width:0;height:40px}
-.histpop{position:absolute;z-index:45;top:calc(100% + 8px);right:18px;left:auto;width:min(420px,calc(100vw - 28px));max-height:62vh;overflow:auto;direction:ltr;background:var(--glass);-webkit-backdrop-filter:blur(20px) saturate(150%);backdrop-filter:blur(20px) saturate(150%);border:1px solid var(--glass-bd);box-shadow:var(--glass-shadow);border-radius:14px;padding:14px}
+.histpop{position:absolute;z-index:45;top:calc(100% + 8px);right:18px;left:auto;width:min(420px,calc(100vw - 28px));max-height:62vh;overflow:auto;direction:ltr;background:color-mix(in srgb,var(--panel) 92%,transparent);-webkit-backdrop-filter:blur(30px) saturate(170%);backdrop-filter:blur(30px) saturate(170%);border:1px solid var(--glass-bd);box-shadow:var(--glass-shadow);border-radius:14px;padding:14px}
+@supports not (backdrop-filter:blur(1px)){.histpop{background:var(--panel)}}
 .histpop-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .histpop-head b{font-size:13px}
 .btn-ghost.mini{padding:5px 11px;font-size:11px;width:auto}
@@ -145,12 +146,7 @@ details summary{font-size:12px;color:var(--accent);cursor:pointer;font-weight:60
 .media{margin-top:16px;display:grid;gap:1px;border-radius:16px;overflow:hidden}
 .media.n2{grid-template-columns:1fr 1fr}
 .mwrap{position:relative;overflow:hidden;background:var(--bd);min-height:80px}
-.mwrap::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:linear-gradient(100deg,rgba(127,127,127,.05) 30%,rgba(127,127,127,.18) 50%,rgba(127,127,127,.05) 70%);background-size:200% 100%;animation:mshimmer 1.4s linear infinite}
-.mwrap.loaded::after,.mwrap.failed::after,.mwrap.vid::after{display:none}
-@keyframes mshimmer{0%{background-position:160% 0}100%{background-position:-160% 0}}
 .media img,.media video{width:100%;height:100%;display:block;object-fit:cover;background:var(--bd);position:relative;z-index:1}
-.media img{opacity:0;transition:opacity .35s}
-.mwrap.loaded img{opacity:1}
 .media:not(.n2) img,.media:not(.n2) video{height:auto;object-fit:contain}
 .mfail{position:absolute;inset:0;z-index:2;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:var(--bd);color:var(--muted);font-family:"Inter",sans-serif;font-size:12px;text-align:center;padding:14px}
 .mfail>svg{width:28px;height:28px;opacity:.45}
@@ -503,6 +499,8 @@ pre.hl{margin:0;background:#0d1117;color:#abb2bf;padding:16px 18px;overflow:auto
         const m = await fetch(media, { headers: { "User-Agent": "Mozilla/5.0", "Referer": "https://twitter.com/" } });
         const h = new Headers(m.headers);
         for (const [k, v] of Object.entries(CORS)) h.set(k, v);
+        const dl = (params.get("dl") || "").replace(/[^\w.\-]/g, "_");
+        if (dl) h.set("Content-Disposition", 'attachment; filename="' + dl + '"'); // force a real download (mobile/iOS)
         return new Response(m.body, { status: m.status, headers: h });
       }
 
@@ -566,7 +564,13 @@ pre.hl{margin:0;background:#0d1117;color:#abb2bf;padding:16px 18px;overflow:auto
 
   const state={proxies:[],proxyMode:"failover",tgProxy:"",code:true};
   let lastRoots=null, rrIndex=0;
-  $("#verLine").textContent=APP+" · v"+VERSION+" · build "+BUILD;
+  // Live version label — updated from version.json (which the deploy bumps every commit).
+  let LIVE_VER=VERSION, LIVE_BUILD=BUILD;
+  function updateVerLabels(){
+    if($("#verLine")) $("#verLine").textContent=APP+" · v"+LIVE_VER+" · build "+LIVE_BUILD;
+    const ev=document.querySelector(".empty .ever"); if(ev) ev.textContent="v"+LIVE_VER+" · build "+LIVE_BUILD;
+  }
+  updateVerLabels();
 
   // ── Settings ──
   const LS="tweee:settings";
@@ -783,28 +787,25 @@ pre.hl{margin:0;background:#0d1117;color:#abb2bf;padding:16px 18px;overflow:auto
     deck.querySelectorAll(".cblock .copy").forEach(btn=>btn.onclick=()=>{ navigator.clipboard.writeText(btn.closest(".cblock").querySelector("code").textContent); btn.textContent="Copied"; toast("Code copied ✓","ok"); setTimeout(()=>btn.textContent="Copy",1200); });
     deck.querySelectorAll(".mbtn.copyurl").forEach(b=>b.onclick=()=>{ navigator.clipboard.writeText(b.dataset.url).then(()=>toast("Media URL copied ✓","ok")).catch(()=>toast("Copy failed","err")); });
     deck.querySelectorAll(".mbtn.dl").forEach(b=>b.onclick=()=>downloadMedia(b));
-    // Image loading state: shimmer placeholder → fade in, or a fallback with a link on error.
-    // Only mark "failed" on a real error event — lazy-deferred images report complete=true
-    // with naturalWidth=0 before they've actually loaded, which must not count as a failure.
-    deck.querySelectorAll(".mwrap img").forEach(img=>{
-      const w=img.closest(".mwrap");
-      const ok=()=>{ w.classList.remove("failed"); w.classList.add("loaded"); };
-      const bad=()=>{ w.classList.remove("loaded"); w.classList.add("failed"); };
-      if(img.complete && img.naturalWidth>0){ ok(); return; }
-      img.addEventListener("load",ok); img.addEventListener("error",bad);
-    });
-    deck.querySelectorAll(".mwrap.vid video").forEach(v=>{ const w=v.closest(".mwrap"); w.classList.add("loaded"); v.addEventListener("error",()=>w.classList.add("failed")); });
-    // Retry a failed image/video — reset its src so the existing load/error handlers run again.
+    // Media just shows when it paints. Only flag a failure on a real error event —
+    // never gate visibility on a load flag (lazy-deferred images report odd states).
+    function wireMedia(el){
+      const w=el.closest(".mwrap");
+      el.addEventListener("error",()=>w.classList.add("failed"));
+      if(el.tagName==="IMG") el.addEventListener("load",()=>w.classList.remove("failed"));
+    }
+    deck.querySelectorAll(".mwrap img,.mwrap.vid video").forEach(wireMedia);
+    // Retry: swap in a fresh element (clean reload, no spurious error from clearing src).
     deck.querySelectorAll(".mbtn.retry").forEach(b=>b.onclick=()=>{
       const w=b.closest(".mwrap"); const el=w&&w.querySelector("img,video"); if(!el) return;
-      const src=el.getAttribute("src");
-      w.classList.remove("failed","loaded");
-      el.removeAttribute("src"); void el.offsetWidth; el.setAttribute("src",src);
-      if(el.tagName==="VIDEO"){ try{ el.load(); }catch(_){} w.classList.add("loaded"); }
+      w.classList.remove("failed");
+      const fresh=el.cloneNode(true);
+      el.replaceWith(fresh); wireMedia(fresh);
+      if(fresh.tagName==="VIDEO"){ try{ fresh.load(); }catch(_){} }
       toast("Retrying…","busy");
     });
   }
-  function emptyHTML(){ return '<div class="empty" id="empty"><div class="elogo">'+birdSVG(false)+'</div><div class="ename">Tweee</div><div class="ever">v'+VERSION+' · build '+BUILD+'</div><div class="ehint">Paste a tweet or article URL above and press <b>Fetch</b>.</div></div>'; }
+  function emptyHTML(){ return '<div class="empty" id="empty"><div class="elogo">'+birdSVG(false)+'</div><div class="ename">Tweee</div><div class="ever">v'+LIVE_VER+' · build '+LIVE_BUILD+'</div><div class="ehint">Paste a tweet or article URL above and press <b>Fetch</b>.</div></div>'; }
   function showEmpty(){ $("#deck").innerHTML=emptyHTML(); $("#deckfoot").hidden=true; }
   function showSpinner(){ $("#deck").innerHTML='<div class="spin"><div class="ring" role="status" aria-label="Loading"></div></div>'; $("#deckfoot").hidden=true; }
   function renderDeck(roots,fromHist){
@@ -832,9 +833,15 @@ pre.hl{margin:0;background:#0d1117;color:#abb2bf;padding:16px 18px;overflow:auto
     }
     return await res.blob();
   }
+  function anchorDownload(href,name){ const a=document.createElement("a"); a.href=href; a.download=name||""; a.rel="noopener"; document.body.appendChild(a); a.click(); a.remove(); }
   async function downloadMedia(btn){
     const url=btn.dataset.url, name=btn.dataset.name||"media", wrap=btn.closest(".mwrap");
     if(wrap.querySelector(".dlbar")) return;
+    // On touch (no hover), the blob/download-attribute trick is unreliable in iOS Safari for
+    // cross-origin video — it opens a tab. If a proxy is set, hit it directly so its
+    // Content-Disposition: attachment header forces a real download.
+    const pdl=proxiedDL(url,name);
+    if(matchMedia("(hover:none)").matches && pdl){ anchorDownload(pdl,name); toast("Downloading…","busy"); return; }
     const ctrl=new AbortController();
     const bar=document.createElement("div"); bar.className="dlbar";
     bar.innerHTML='<div class="dlbar-track"><div class="dlbar-fill"></div></div><span class="dlbar-pct">0%</span><button class="dlbar-x" title="Cancel">✕</button>';
@@ -843,7 +850,7 @@ pre.hl{margin:0;background:#0d1117;color:#abb2bf;padding:16px 18px;overflow:auto
     bar.querySelector(".dlbar-x").onclick=()=>ctrl.abort();
     toast("Download started…","busy");
     // Try direct first, then each configured proxy (media passthrough) when X blocks CORS.
-    const candidates=[url].concat(proxyList().map(b=>proxyMediaURL(b,url)));
+    const candidates=[url].concat(proxyList().map(b=>proxyMediaURL(b,url,name)));
     let lastErr=null;
     for(let i=0;i<candidates.length;i++){
       try{
@@ -857,10 +864,10 @@ pre.hl{margin:0;background:#0d1117;color:#abb2bf;padding:16px 18px;overflow:auto
       }
     }
     bar.remove();
-    window.open(url,"_blank","noopener");
-    toast("Download failed"+((state.proxies||[]).length?"":" — add a proxy to enable")+" — opened in new tab","err");
+    if(pdl){ anchorDownload(pdl,name); toast("Downloading via proxy…","busy"); }
+    else { window.open(url,"_blank","noopener"); toast("Download failed — add a proxy in Settings to enable; opened in a new tab","err"); }
   }
-  function triggerSave(blob,name){ const o=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=o; a.download=name; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(o); }
+  function triggerSave(blob,name){ const o=URL.createObjectURL(blob); anchorDownload(o,name); setTimeout(()=>URL.revokeObjectURL(o),4000); }
 
   // ── Normalizers ──
   // FxTwitter delivers X Articles as a Draft.js block document (a.content):
@@ -939,7 +946,8 @@ pre.hl{margin:0;background:#0d1117;color:#abb2bf;padding:16px 18px;overflow:auto
   }
   function withParam(base,key,val){ if(new RegExp("[?&]"+key+"=$").test(base)) return base+encodeURIComponent(val); return base+(base.includes("?")?"&":"?")+key+"="+encodeURIComponent(val); }
   function proxyTweetURL(base,id){ return withParam(base,"id",id); }
-  function proxyMediaURL(base,url){ return withParam(base,"url",url); }
+  function proxyMediaURL(base,url,name){ let u=withParam(base,"url",url); if(name) u=withParam(u,"dl",name); return u; }
+  function proxiedDL(url,name){ const ps=proxyList(); return ps.length?proxyMediaURL(ps[0],url,name):null; }
   function parseIds(input){
     const out=[],seen=new Set(),re=/(?:status(?:es)?|article)\/(\d+)/g; let m;
     while((m=re.exec(input))){ if(!seen.has(m[1])){seen.add(m[1]);out.push(m[1]);} }
@@ -1052,14 +1060,12 @@ pre.hl{margin:0;background:#0d1117;color:#abb2bf;padding:16px 18px;overflow:auto
     const baseCSS=document.querySelector("style").textContent;
     const clone=deck.cloneNode(true);
     clone.querySelectorAll(".mtools,.dlbar").forEach(e=>e.remove());
-    // No runtime JS in the export, so mark media loaded and keep the small source link visible.
-    clone.querySelectorAll(".mwrap").forEach(w=>{ if(!w.classList.contains("failed")) w.classList.add("loaded"); });
     const inl=async(el,attr)=>{ const u=el.getAttribute(attr); if(!u||u.startsWith("data:")) return; try{ el.setAttribute(attr, await toDataURL(u)); }catch(_){} };
     if(S.inlineImg){ for(const img of clone.querySelectorAll("img")) await inl(img,"src"); }
     if(S.inlineVid){ for(const vid of clone.querySelectorAll("video")){ await inl(vid,"src"); if(vid.getAttribute("poster")) await inl(vid,"poster"); } }
     const bodyCls=(!S.date?"no-date ":"")+(!S.viewx?"no-viewx ":"")+(!S.note?"no-note":"");
     const rootVars=":root{--accent:#1d9bf0;--muted:#536471;--shell:"+v('--shell')+";--bg:"+v('--bg')+";--fg:"+v('--fg')+";--bd:"+v('--bd')+";--fa-font:"+v('--fa-font')+";--en-font:"+v('--en-font')+";--fsize:"+v('--fsize')+";--lh:"+v('--lh')+"}";
-    const overrides="html,body{margin:0}.app{display:block}.panel,.bar,.modal-bk,.toast{display:none!important}body{background:"+v('--shell')+";padding:40px 16px}.stage{padding:0}.deck{margin:0 auto}.mtools,.dlbar,.mbar{display:none!important}.mwrap::after{display:none}.mwrap .mlink{display:inline-flex}";
+    const overrides="html,body{margin:0}.app{display:block}.panel,.bar,.modal-bk,.toast{display:none!important}body{background:"+v('--shell')+";padding:40px 16px}.stage{padding:0}.deck{margin:0 auto}.mtools,.dlbar,.mbar{display:none!important}.mwrap .mlink{display:inline-flex}";
     const fid=(deck.innerHTML.match(/status\/(\d+)/)||[])[1];
     const dt=resolveTheme();
     const html='<!doctype html>\n<!-- PigmentDev Tweee — https://pigment.dev · github.com/pigment-dev/tweee -->\n'+
@@ -1133,6 +1139,8 @@ pre.hl{margin:0;background:#0d1117;color:#abb2bf;padding:16px 18px;overflow:auto
       if(!r.ok) return;
       const v=await r.json(); const b=String(v.build||v.version||"");
       if(!b) return;
+      // Show the live version number/build in the UI.
+      if(v.version) LIVE_VER=v.version; if(v.build) LIVE_BUILD=v.build; updateVerLabels();
       if(_build===null){ _build=b; return; }            // baseline on first load
       if(b!==_build){ _build=b;
         if(!lastRoots){ location.reload(); }            // nothing open → refresh silently

@@ -169,6 +169,8 @@ export default {
         const m = await fetch(media, { headers: { "User-Agent": "Mozilla/5.0", "Referer": "https://twitter.com/" } });
         const h = new Headers(m.headers);
         for (const [k, v] of Object.entries(CORS)) h.set(k, v);
+        const dl = (params.get("dl") || "").replace(/[^\w.\-]/g, "_");
+        if (dl) h.set("Content-Disposition", 'attachment; filename="' + dl + '"'); // force a real download (mobile/iOS)
         return new Response(m.body, { status: m.status, headers: h });
       }
       // Tweet/article passthrough: ?id=<numeric id>
