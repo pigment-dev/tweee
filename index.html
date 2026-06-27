@@ -65,12 +65,13 @@ body{background:var(--shell);color:var(--ink);font-family:"Inter",system-ui,-app
   .acts{margin-inline-start:auto}
   /* full-width dropdown so it never runs off-screen on phones */
   .histpop{left:8px;right:8px;width:auto;max-height:70vh}
-  /* iOS zooms the page when a focused field has font-size < 16px — keep controls at 16px */
-  input[type=text],input[type=url],textarea,select{font-size:16px}
 }
 .group{margin-bottom:18px}
 .group>label:not(.ios){display:block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
 input[type=text],input[type=url],textarea,select{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;font-size:13px;color:var(--ink);background:var(--panel)}
+/* iOS zooms the page when a focused field has font-size < 16px — keep all controls at 16px on phones.
+   Placed AFTER the base 13px rule so it wins the cascade. */
+@media (max-width:740px){ input[type=text],input[type=url],textarea,select{font-size:16px} }
 input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(29,155,240,.12)}
 textarea{resize:vertical;line-height:1.6}
 .row{display:flex;gap:8px}.row>*{flex:1}
@@ -1037,7 +1038,7 @@ pre.hl{margin:0;background:#0d1117;color:#abb2bf;padding:16px 18px;overflow:auto
   // History popover (anchored to the toolbar input)
   const histPop=$("#histPop");
   function closeHist(){ histPop.hidden=true; }
-  $("#histBtn").onclick=e=>{ e.stopPropagation(); histPop.hidden=!histPop.hidden; if(!histPop.hidden){ renderHist(); $("#histSearch").focus(); } };
+  $("#histBtn").onclick=e=>{ e.stopPropagation(); histPop.hidden=!histPop.hidden; if(!histPop.hidden){ renderHist(); if(matchMedia("(hover:hover)").matches) $("#histSearch").focus(); } };
   document.addEventListener("click",e=>{ if(!histPop.hidden && !histPop.contains(e.target) && !$("#histBtn").contains(e.target)) closeHist(); });
 
   document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ modal.classList.remove("open"); tgModal.classList.remove("open"); setModal.classList.remove("open"); closeHist(); } });
