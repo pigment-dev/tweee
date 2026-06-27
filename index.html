@@ -747,7 +747,7 @@ pre.hl{margin:0;background:#0d1117;color:#abb2bf;padding:16px 18px;overflow:auto
       const ext=extOf(m.url,m.type==="photo"?"jpg":"mp4"), name=base+"_"+(i+1)+"."+ext, url=dlUrl(m);
       const isVid=(m.type==="video"||m.type==="gif");
       const inner=isVid
-        ? '<video src="'+m.url+'" '+(m.poster?'poster="'+m.poster+'" ':'')+'controls playsinline '+(m.type==="gif"?'autoplay loop muted ':'')+'></video>'
+        ? '<video src="'+m.url+'" '+(m.poster?'poster="'+m.poster+'" ':'')+'controls playsinline preload="metadata" referrerpolicy="no-referrer" '+(m.type==="gif"?'autoplay loop muted ':'')+'></video>'
         : '<img src="'+m.url+'" alt="" loading="lazy" referrerpolicy="no-referrer">';
       const dlBtn='<button class="mbtn dl" data-url="'+url+'" data-name="'+name+'" title="Download">'+IC_DL+'<span>Download</span></button>';
       const cpBtn='<button class="mbtn copyurl" data-url="'+url+'" title="Copy media URL">'+IC_LINK+'<span>Copy link</span></button>';
@@ -787,21 +787,21 @@ pre.hl{margin:0;background:#0d1117;color:#abb2bf;padding:16px 18px;overflow:auto
     deck.querySelectorAll(".cblock .copy").forEach(btn=>btn.onclick=()=>{ navigator.clipboard.writeText(btn.closest(".cblock").querySelector("code").textContent); btn.textContent="Copied"; toast("Code copied ✓","ok"); setTimeout(()=>btn.textContent="Copy",1200); });
     deck.querySelectorAll(".mbtn.copyurl").forEach(b=>b.onclick=()=>{ navigator.clipboard.writeText(b.dataset.url).then(()=>toast("Media URL copied ✓","ok")).catch(()=>toast("Copy failed","err")); });
     deck.querySelectorAll(".mbtn.dl").forEach(b=>b.onclick=()=>downloadMedia(b));
-    // Media just shows when it paints. Only flag a failure on a real error event —
-    // never gate visibility on a load flag (lazy-deferred images report odd states).
-    function wireMedia(el){
-      const w=el.closest(".mwrap");
-      el.addEventListener("error",()=>w.classList.add("failed"));
-      if(el.tagName==="IMG") el.addEventListener("load",()=>w.classList.remove("failed"));
+    // Images show when they paint; on a real error we show the fallback overlay.
+    // Videos are left to the native player (poster + controls) — never covered by an
+    // overlay, so a playable video is never smothered.
+    function wireImg(img){
+      const w=img.closest(".mwrap");
+      img.addEventListener("error",()=>w.classList.add("failed"));
+      img.addEventListener("load",()=>w.classList.remove("failed"));
     }
-    deck.querySelectorAll(".mwrap img,.mwrap.vid video").forEach(wireMedia);
-    // Retry: swap in a fresh element (clean reload, no spurious error from clearing src).
+    deck.querySelectorAll(".mwrap:not(.vid) img").forEach(wireImg);
+    // Retry a failed image: swap in a fresh element (clean reload, no spurious error).
     deck.querySelectorAll(".mbtn.retry").forEach(b=>b.onclick=()=>{
-      const w=b.closest(".mwrap"); const el=w&&w.querySelector("img,video"); if(!el) return;
+      const w=b.closest(".mwrap"); const img=w&&w.querySelector("img"); if(!img) return;
       w.classList.remove("failed");
-      const fresh=el.cloneNode(true);
-      el.replaceWith(fresh); wireMedia(fresh);
-      if(fresh.tagName==="VIDEO"){ try{ fresh.load(); }catch(_){} }
+      const fresh=img.cloneNode(true);
+      img.replaceWith(fresh); wireImg(fresh);
       toast("Retrying…","busy");
     });
   }
