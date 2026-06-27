@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "PigmentDev Tweee",
-  "version": "2.4.1",
+  "version": "2.5.0",
   "description": "Adds a bird to the address bar on X. On a supported tweet or article it turns colored; click it to open the post in your Tweee reader.",
   "homepage_url": "https://github.com/pigment-dev/tweee",
   "icons": {

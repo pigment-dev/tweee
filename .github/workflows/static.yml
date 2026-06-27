@@ -31,9 +31,6 @@ jobs:
         with:
           node-version: 20
 
-      - name: Rebuild extension bundles from index.html
-        run: node build-extension.js
-
       - name: Stamp version.json (web app uses this to auto-refresh)
         env:
           SHA: ${{ github.sha }}

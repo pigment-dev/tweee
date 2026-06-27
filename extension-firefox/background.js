@@ -26,12 +26,10 @@ browser.tabs.onActivated.addListener(async ({ tabId }) => {
 });
 
 browser.pageAction.onClicked.addListener(async (tab) => {
-  const { appUrl, useBuiltin } = await browser.storage.local.get(["appUrl", "useBuiltin"]);
-  // Default to the hosted app; use the bundled offline copy only if explicitly chosen
-  // (or if a file:// URL was set, which Firefox can't open from an extension).
-  const hosted = (appUrl || "").trim() || DEFAULT_URL;
-  const wantsBuiltin = useBuiltin === true || /^file:/i.test(hosted);
-  const base = wantsBuiltin ? browser.runtime.getURL("tweee.html") : hosted;
+  // Always open the live hosted app (default: the GitHub Pages build), so the extension
+  // never needs re-publishing when the app updates.
+  const { appUrl } = await browser.storage.local.get("appUrl");
+  const base = (appUrl || "").trim() || DEFAULT_URL;
 
   let target = base;
   if (SUPPORTED.test(tab.url)) {

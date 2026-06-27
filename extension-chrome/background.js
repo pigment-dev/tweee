@@ -31,10 +31,10 @@ chrome.tabs.onActivated.addListener(async ({ tabId }) => {
 });
 
 chrome.action.onClicked.addListener(async (tab) => {
-  const { appUrl, useBuiltin } = await chrome.storage.local.get(["appUrl", "useBuiltin"]);
-  const hosted = (appUrl || "").trim() || DEFAULT_URL;
-  const wantsBuiltin = useBuiltin === true || /^file:/i.test(hosted);
-  const base = wantsBuiltin ? chrome.runtime.getURL("tweee.html") : hosted;
+  // Always open the live hosted app (default: the GitHub Pages build), so the extension
+  // never needs re-publishing when the app updates.
+  const { appUrl } = await chrome.storage.local.get("appUrl");
+  const base = (appUrl || "").trim() || DEFAULT_URL;
 
   let target = base;
   if (SUPPORTED.test(tab.url)) {

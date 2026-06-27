@@ -10,31 +10,18 @@
   label{display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#536471;margin:14px 0 6px}
   input[type=url]{width:100%;box-sizing:border-box;border:1px solid #cfd9e0;border-radius:8px;padding:9px 11px;font:inherit}
   input[type=url]:focus{outline:none;border-color:#1d9bf0;box-shadow:0 0 0 3px rgba(29,155,240,.15)}
-  input[type=url]:disabled{background:#f3f5f7;color:#90a0ad}
   p{font-size:12px;color:#536471}
-  .choice{display:flex;gap:9px;align-items:flex-start;margin:10px 0;padding:11px 12px;border:1px solid #e3e8ee;border-radius:10px;cursor:pointer}
-  .choice input{margin-top:3px}
-  .choice b{font-size:13px;display:block}
-  .choice span{font-size:12px;color:#536471}
+  code{background:#eef1f4;padding:1px 5px;border-radius:4px}
   button{margin-top:14px;background:#1d9bf0;color:#fff;border:0;border-radius:8px;padding:9px 16px;font:inherit;font-weight:600;cursor:pointer}
   #msg{margin-left:10px;color:#16a34a;font-weight:600}
-  code{background:#eef1f4;padding:1px 5px;border-radius:4px}
-  .note{background:#fff8e6;border:1px solid #f0e2b6;border-radius:8px;padding:9px 11px;color:#6b561f;margin-top:12px}
 </style>
 </head>
 <body>
   <h1><img src="icons/icon-color-48.png" alt="">Tweee</h1>
-  <p>Where should the bird open a tweet or article?</p>
-
-  <label class="choice"><input type="radio" name="mode" value="builtin"><span><b>Built-in offline copy (recommended)</b><span>Opens the Tweee app bundled inside this extension. Works fully offline — no server, no hosting. Settings persist per browser.</span></span></label>
-
-  <label class="choice"><input type="radio" name="mode" value="hosted"><span><b>My hosted URL</b><span>Use your own deployed copy so settings (proxies) follow you across browsers via a <code>config.json</code>.</span></span></label>
-
-  <label for="appUrl">Hosted Tweee app URL</label>
-  <input id="appUrl" type="url" placeholder="https://tweee.yourdomain.com/">
-
-  <div class="note"><b>Local files aren't supported.</b> Firefox blocks extensions from opening <code>file:///…</code> pages. Use the built-in copy above, or host the single file (GitHub Pages / Netlify / <code>python3&nbsp;-m&nbsp;http.server</code>).</div>
-
+  <p>Clicking the bird opens this Tweee web app with the tweet pre-loaded. It always loads the <b>live</b> version, so you never need to update the extension when the app changes.</p>
+  <label for="appUrl">Tweee app URL</label>
+  <input id="appUrl" type="url" placeholder="https://pigment-dev.github.io/tweee/">
+  <p>Leave it as the default, or point it at your own deployed copy. For a GitHub <b>project</b> page keep the trailing slash (<code>…/tweee/</code>).</p>
   <button id="save">Save</button><span id="msg"></span>
   <script src="options.js"></script>
 </body>

@@ -89,7 +89,7 @@ Install the ready-made shortcut, then from the **X app or Safari** tap **Share �
 
 ## Browser extensions
 
-A companion extension puts a bird on X. It turns **colored** on a supported tweet/article; clicking it opens Tweee with the post pre-loaded. By default it opens the hosted app at <https://pigment-dev.github.io/tweee/> — change it (or switch to the bundled offline copy) in the extension's options.
+A companion extension puts a bird on X. It turns **colored** on a supported tweet/article; clicking it opens Tweee with the post pre-loaded. It always loads the **live** hosted app (default <https://pigment-dev.github.io/tweee/>, changeable in options) — so the extension never needs updating when the app changes.
 
 - **Firefox** — install [`tweee-firefox.xpi`](./tweee-firefox.xpi) (or load `extension-firefox/` via `about:debugging`). See [extension-firefox/README.md](./extension-firefox/README.md).
 - **Chrome / Edge / Brave** — open `chrome://extensions`, enable **Developer mode**, **Load unpacked** → pick the `extension-chrome/` folder (or unzip [`tweee-chrome.zip`](./tweee-chrome.zip)).

@@ -44,11 +44,8 @@ body{background:var(--shell);color:var(--ink);font-family:"Inter",system-ui,-app
 .app.incog .brand .icon{filter:drop-shadow(0 2px 5px rgba(124,108,255,.5))}
 .url-wrap{position:relative;flex:1;min-width:0;display:flex;align-items:center;gap:8px}
 .url-field{position:relative;flex:1;min-width:0;display:flex;align-items:center}
-.url-field input{flex:1;min-width:0;height:40px;padding-right:40px}
-.inbtn{position:absolute;right:5px;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:8px;background:transparent;border:0;color:var(--muted);display:grid;place-items:center;padding:0}
-.inbtn:hover{color:var(--accent);background:var(--shell)}
-.inbtn svg{width:17px;height:17px}
-.histpop{position:absolute;z-index:45;top:calc(100% + 10px);right:0;left:auto;width:min(420px,calc(100vw - 28px));max-height:62vh;overflow:auto;direction:ltr;background:var(--glass);-webkit-backdrop-filter:blur(20px) saturate(150%);backdrop-filter:blur(20px) saturate(150%);border:1px solid var(--glass-bd);box-shadow:var(--glass-shadow);border-radius:14px;padding:14px}
+.url-field input{flex:1;min-width:0;height:40px}
+.histpop{position:absolute;z-index:45;top:calc(100% + 8px);right:18px;left:auto;width:min(420px,calc(100vw - 28px));max-height:62vh;overflow:auto;direction:ltr;background:var(--glass);-webkit-backdrop-filter:blur(20px) saturate(150%);backdrop-filter:blur(20px) saturate(150%);border:1px solid var(--glass-bd);box-shadow:var(--glass-shadow);border-radius:14px;padding:14px}
 .histpop-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .histpop-head b{font-size:13px}
 .btn-ghost.mini{padding:5px 11px;font-size:11px;width:auto}
@@ -67,7 +64,9 @@ body{background:var(--shell);color:var(--ink);font-family:"Inter",system-ui,-app
   .url-wrap{order:3;flex-basis:100%}
   .acts{margin-inline-start:auto}
   /* full-width dropdown so it never runs off-screen on phones */
-  .histpop{left:0;right:0;width:auto;max-height:70vh}
+  .histpop{left:8px;right:8px;width:auto;max-height:70vh}
+  /* iOS zooms the page when a focused field has font-size < 16px — keep controls at 16px */
+  input[type=text],input[type=url],textarea,select{font-size:16px}
 }
 .group{margin-bottom:18px}
 .group>label:not(.ios){display:block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
@@ -289,22 +288,22 @@ pre.hl{margin:0;background:#0d1117;color:#abb2bf;padding:16px 18px;overflow:auto
     <div class="url-wrap">
       <div class="url-field">
         <input id="url" type="text" placeholder="Paste one or more tweet / article URLs…" dir="ltr">
-        <button class="inbtn" id="histBtn" title="History" aria-label="History"><svg viewBox="0 0 256 256" fill="currentColor"><path d="M136,80v43.47l36.12,21.67a8,8,0,0,1-8.24,13.72l-40-24A8,8,0,0,1,120,128V80a8,8,0,0,1,16,0Zm-8-48A95.44,95.44,0,0,0,60.08,60.15C52.81,67.51,46.35,74.59,40,82V64a8,8,0,0,0-16,0v40a8,8,0,0,0,8,8H72a8,8,0,0,0,0-16H49c7.15-8.42,14.27-16.35,22.39-24.57a80,80,0,1,1,1.66,114.75,8,8,0,1,0-11,11.64A96,96,0,1,0,128,32Z"/></svg></button>
-        <div class="histpop" id="histPop" hidden>
-          <div class="histpop-head"><b>History <span id="histCount">0</span></b><button class="btn-ghost mini" id="histClear">Clear all</button></div>
-          <input id="histSearch" type="text" placeholder="Search history…">
-          <div class="hist" id="histList"></div>
-          <label class="ios" style="margin-top:10px"><span class="ios-l">Incognito<small>pause saving to history</small></span><input type="checkbox" id="incToggle"><span class="tgl"></span></label>
-        </div>
       </div>
       <button class="btn-primary fetch" id="fetchBtn">Fetch<svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></button>
     </div>
     <div class="acts">
+      <button class="iconbtn" id="histBtn" title="History" aria-label="History"><svg viewBox="0 0 256 256" fill="currentColor"><path d="M136,80v43.47l36.12,21.67a8,8,0,0,1-8.24,13.72l-40-24A8,8,0,0,1,120,128V80a8,8,0,0,1,16,0Zm-8-48A95.44,95.44,0,0,0,60.08,60.15C52.81,67.51,46.35,74.59,40,82V64a8,8,0,0,0-16,0v40a8,8,0,0,0,8,8H72a8,8,0,0,0,0-16H49c7.15-8.42,14.27-16.35,22.39-24.57a80,80,0,1,1,1.66,114.75,8,8,0,1,0-11,11.64A96,96,0,1,0,128,32Z"/></svg></button>
       <button class="iconbtn" id="dlBtn" title="Download as HTML" aria-label="Download as HTML"><svg viewBox="0 0 256 256" fill="currentColor"><path d="M224,144v64a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V144a8,8,0,0,1,16,0v56H208V144a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,124.69V32a8,8,0,0,0-16,0v92.69L93.66,98.34a8,8,0,0,0-11.32,11.32Z"/></svg></button>
       <button class="iconbtn" id="printBtn" title="Print or save as PDF" aria-label="Print or save as PDF"><svg viewBox="0 0 256 256" fill="currentColor"><path d="M214.67,72H200V40a8,8,0,0,0-8-8H64a8,8,0,0,0-8,8V72H41.33C27.36,72,16,82.77,16,96v80a8,8,0,0,0,8,8H56v32a8,8,0,0,0,8,8H192a8,8,0,0,0,8-8V184h32a8,8,0,0,0,8-8V96C240,82.77,228.64,72,214.67,72ZM72,48H184V72H72ZM184,208H72V160H184Zm40-40H200V152a8,8,0,0,0-8-8H64a8,8,0,0,0-8,8v16H32V96c0-4.41,4.19-8,9.33-8H214.67c5.14,0,9.33,3.59,9.33,8Zm-24-52a12,12,0,1,1-12-12A12,12,0,0,1,200,116Z"/></svg></button>
       <button class="iconbtn" id="tgBtn" title="Send to Telegram" aria-label="Send to Telegram"><svg viewBox="0 0 256 256" fill="currentColor"><path d="M227.32,28.68a16,16,0,0,0-15.66-4.08l-.15,0L19.57,82.84a16,16,0,0,0-2.49,29.8L102,154l41.3,84.87A15.86,15.86,0,0,0,157.74,248q.69,0,1.38-.06a15.88,15.88,0,0,0,14-11.51l58.2-191.94c0-.05,0-.1,0-.15A16,16,0,0,0,227.32,28.68ZM157.83,231.85l-.05.14,0-.07-40.06-82.3,48-48a8,8,0,0,0-11.31-11.31l-48,48L24.08,98.25l-.07,0,.14,0L216,40Z"/></svg></button>
       <button class="iconbtn" id="incBtn" title="Incognito — don’t save to history" aria-label="Incognito mode" aria-pressed="false"><svg viewBox="0 0 256 256" fill="currentColor"><path d="M112,116a12,12,0,1,1-12-12A12,12,0,0,1,112,116Zm44-12a12,12,0,1,0,12,12A12,12,0,0,0,156,104Zm68,16v96a8,8,0,0,1-13.07,6.19l-24.26-19.85L162.4,222.19a8,8,0,0,1-10.13,0L128,202.34l-24.27,19.85a8,8,0,0,1-10.13,0L69.33,202.34,45.07,222.19A8,8,0,0,1,32,216V120a96,96,0,0,1,192,0Zm-16,0a80,80,0,0,0-160,0v79.12l16.27-13.31a8,8,0,0,1,10.13,0l24.27,19.85,24.26-19.85a8,8,0,0,1,10.14,0l24.26,19.85,24.27-19.85a8,8,0,0,1,10.13,0L208,199.12Z"/></svg></button>
       <button class="iconbtn" id="settingsBtn" title="Settings" aria-label="Settings"><svg viewBox="0 0 256 256" fill="currentColor"><path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm109.94-52.79a8,8,0,0,0-3.89-5.4l-29.83-17-.12-33.62a8,8,0,0,0-2.83-6.08,111.91,111.91,0,0,0-36.72-20.67,8,8,0,0,0-6.46.59L128,41.85,97.88,25a8,8,0,0,0-6.47-.6A112.1,112.1,0,0,0,54.73,45.15a8,8,0,0,0-2.83,6.07l-.15,33.65-29.83,17a8,8,0,0,0-3.89,5.4,106.47,106.47,0,0,0,0,41.56,8,8,0,0,0,3.89,5.4l29.83,17,.12,33.62a8,8,0,0,0,2.83,6.08,111.91,111.91,0,0,0,36.72,20.67,8,8,0,0,0,6.46-.59L128,214.15,158.12,231a7.91,7.91,0,0,0,3.9,1,8.09,8.09,0,0,0,2.57-.42,112.1,112.1,0,0,0,36.68-20.73,8,8,0,0,0,2.83-6.07l.15-33.65,29.83-17a8,8,0,0,0,3.89-5.4A106.47,106.47,0,0,0,237.94,107.21Zm-15,34.91-28.57,16.25a8,8,0,0,0-3,3c-.58,1-1.19,2.06-1.81,3.06a7.94,7.94,0,0,0-1.22,4.21l-.15,32.25a95.89,95.89,0,0,1-25.37,14.3L134,199.13a8,8,0,0,0-3.91-1h-.19c-1.21,0-2.43,0-3.64,0a8.08,8.08,0,0,0-4.1,1l-28.84,16.1A96,96,0,0,1,67.88,201l-.11-32.2a8,8,0,0,0-1.22-4.22c-.62-1-1.23-2-1.8-3.06a8.09,8.09,0,0,0-3-3.06l-28.6-16.29a90.49,90.49,0,0,1,0-28.26L61.67,97.63a8,8,0,0,0,3-3c.58-1,1.19-2.06,1.81-3.06a7.94,7.94,0,0,0,1.22-4.21l.15-32.25a95.89,95.89,0,0,1,25.37-14.3L122,56.87a8,8,0,0,0,4.1,1c1.21,0,2.43,0,3.64,0a8.08,8.08,0,0,0,4.1-1l28.84-16.1A96,96,0,0,1,188.12,55l.11,32.2a8,8,0,0,0,1.22,4.22c.62,1,1.23,2,1.8,3.06a8.09,8.09,0,0,0,3,3.06l28.6,16.29A90.49,90.49,0,0,1,222.9,142.12Z"/></svg></button>
+    </div>
+    <div class="histpop" id="histPop" hidden>
+      <div class="histpop-head"><b>History <span id="histCount">0</span></b><button class="btn-ghost mini" id="histClear">Clear all</button></div>
+      <input id="histSearch" type="text" placeholder="Search history…">
+      <div class="hist" id="histList"></div>
+      <label class="ios" style="margin-top:10px"><span class="ios-l">Incognito<small>pause saving to history</small></span><input type="checkbox" id="incToggle"><span class="tgl"></span></label>
     </div>
   </header>
   <div class="barstatus"><div id="status"></div></div>
@@ -551,7 +550,7 @@ pre.hl{margin:0;background:#0d1117;color:#abb2bf;padding:16px 18px;overflow:auto
 (function(){
   "use strict";
   const $=s=>document.querySelector(s);
-  const APP="PigmentDev Tweee", VERSION="2.4.0", BUILD="2026-06-26";
+  const APP="PigmentDev Tweee", VERSION="2.5.0", BUILD="2026-06-27";
   const FONTS="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&family=Noto+Naskh+Arabic&family=Source+Serif+4&family=Lora&family=Merriweather&family=Playfair+Display&family=PT+Serif&family=EB+Garamond&family=Noto+Serif&family=Open+Sans&family=Roboto&family=Work+Sans&family=JetBrains+Mono&family=Inter&display=swap";
 
   // ── Host-owner defaults ──────────────────────────────────────────────
