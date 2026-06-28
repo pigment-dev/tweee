@@ -188,6 +188,10 @@ details summary{font-size:12px;color:var(--accent);cursor:pointer;font-weight:60
 .empty .ename{font-weight:700;font-size:18px;letter-spacing:-.01em;opacity:.75;margin-top:2px}
 .empty .ever{font-size:11px;opacity:.6;margin-top:-6px}
 .empty .ehint{margin-top:6px}
+.empty .eguide{list-style:none;margin:14px 0 0;padding:14px 18px;display:flex;flex-direction:column;gap:10px;text-align:start;max-width:430px;border:1px solid var(--line);border-radius:14px;background:rgba(127,127,127,.05)}
+.empty .eguide li{display:flex;align-items:flex-start;gap:10px;font-size:13px;line-height:1.5;opacity:.92}
+.empty .eguide li span{flex:none;width:20px;text-align:center;opacity:.85;filter:grayscale(.2)}
+.empty .eguide b{color:var(--ink);font-weight:600;opacity:.95}
 .spin{display:flex;justify-content:center;padding:96px 0}
 .ring{width:46px;height:46px;border-radius:50%;border:4px solid var(--line);border-top-color:var(--accent);animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -810,7 +814,13 @@ pre.hl{margin:0;background:#0d1117;color:#abb2bf;padding:16px 18px;overflow:auto
       toast("Retrying…","busy");
     });
   }
-  function emptyHTML(){ return '<div class="empty" id="empty"><div class="elogo">'+birdSVG(false)+'</div><div class="ename">Tweee</div><div class="ever">v'+LIVE_VER+' · build '+LIVE_BUILD+'</div><div class="ehint">Paste a tweet or article URL above and press <b>Fetch</b>.</div></div>'; }
+  function emptyHTML(){ return '<div class="empty" id="empty"><div class="elogo">'+birdSVG(false)+'</div><div class="ename">Tweee</div><div class="ever">v'+LIVE_VER+' · build '+LIVE_BUILD+'</div>'
+    +'<div class="ehint">Paste a tweet or article URL above and press <b>Fetch</b>.</div>'
+    +'<ul class="eguide">'
+    +'<li><span>🔗</span>A single <b>tweet</b> or <b>X Article</b> URL — pretty-typeset and ready to export.</li>'
+    +'<li><span>🧵</span>A <b>thread (رشته)?</b> Paste the <b>last</b> tweet — Tweee unrolls the whole chain.</li>'
+    +'<li><span>＋</span>Several tweets at once? Paste <b>multiple URLs</b> for a numbered set.</li>'
+    +'</ul></div>'; }
   function showEmpty(){ $("#deck").innerHTML=emptyHTML(); $("#deckfoot").hidden=true; }
   function showSpinner(){ $("#deck").innerHTML='<div class="spin"><div class="ring" role="status" aria-label="Loading"></div></div>'; $("#deckfoot").hidden=true; }
   function renderDeck(roots,fromHist){
