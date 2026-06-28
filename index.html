@@ -376,6 +376,9 @@ pre.hl{margin:0;background:#0d1117;color:#abb2bf;padding:16px 18px;overflow:auto
     </section>
 
     <section class="tabpane" data-pane="display">
+      <div class="group"><label>Threads</label>
+        <label class="ios"><span class="ios-l">Unroll thread<small>paste the last tweet — Tweee walks up the reply chain to the first</small></span><input type="checkbox" id="unrollToggle"><span class="tgl"></span></label>
+      </div>
       <div class="group"><label>On the card</label>
         <label class="ios"><span class="ios-l">Detect code blocks</span><input type="checkbox" id="codeToggle"><span class="tgl"></span></label>
         <label class="ios"><span class="ios-l">Show tweet date</span><input type="checkbox" id="dateToggle"><span class="tgl"></span></label>
@@ -549,7 +552,7 @@ pre.hl{margin:0;background:#0d1117;color:#abb2bf;padding:16px 18px;overflow:auto
 (function(){
   "use strict";
   const $=s=>document.querySelector(s);
-  const APP="PigmentDev Tweee", VERSION="2.5.0", BUILD="2026-06-27";
+  const APP="PigmentDev Tweee", VERSION="2.6.0", BUILD="2026-06-28";
   const FONTS="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&family=Noto+Naskh+Arabic&family=Source+Serif+4&family=Lora&family=Merriweather&family=Playfair+Display&family=PT+Serif&family=EB+Garamond&family=Noto+Serif&family=Open+Sans&family=Roboto&family=Work+Sans&family=JetBrains+Mono&family=Inter&display=swap";
 
   // ── Host-owner defaults ──────────────────────────────────────────────
@@ -574,7 +577,7 @@ pre.hl{margin:0;background:#0d1117;color:#abb2bf;padding:16px 18px;overflow:auto
 
   // ── Settings ──
   const LS="tweee:settings";
-  const DEF={proxies:[],proxyMode:"failover",tgProxy:"",themeMode:"auto",theme:0,fa:'"Yekan Bakh","Vazirmatn",sans-serif',en:'"Open Sans",sans-serif',fsize:18,lh:12,code:true,note:true,date:true,viewx:true,inlineImg:true,inlineVid:false,incognito:false,tgToken:"",tgChat:""};
+  const DEF={proxies:[],proxyMode:"failover",tgProxy:"",themeMode:"auto",theme:0,fa:'"Yekan Bakh","Vazirmatn",sans-serif',en:'"Open Sans",sans-serif',fsize:18,lh:12,code:true,note:true,date:true,viewx:true,inlineImg:true,inlineVid:false,incognito:false,unroll:true,tgToken:"",tgChat:""};
   // Migrate any legacy single-proxy ("proxy":"…") value into the proxies[] array.
   function migrate(o){ o=o||{}; if(typeof o.proxy==="string" && o.proxy.trim() && !(Array.isArray(o.proxies)&&o.proxies.length)){ o.proxies=[o.proxy.trim()]; } delete o.proxy; if(typeof o.proxies==="string") o.proxies=splitProxies(o.proxies); if(o.fa==='"Yekan Bakh",sans-serif') o.fa='"Yekan Bakh","Vazirmatn",sans-serif'; return o; }
   function splitProxies(s){ return String(s||"").split(/[\n,]+/).map(x=>x.trim()).filter(Boolean); }
@@ -646,6 +649,7 @@ pre.hl{margin:0;background:#0d1117;color:#abb2bf;padding:16px 18px;overflow:auto
     $("#codeToggle").checked=S.code; $("#dateToggle").checked=S.date; $("#viewxToggle").checked=S.viewx;
     $("#noteToggle").checked=S.note; $("#imgToggle").checked=S.inlineImg; $("#vidToggle").checked=S.inlineVid;
     $("#incToggle").checked=S.incognito; reflectIncog();
+    if($("#unrollToggle")) $("#unrollToggle").checked=S.unroll!==false;
     document.body.classList.toggle("no-note",!S.note);
     document.body.classList.toggle("no-date",!S.date);
     document.body.classList.toggle("no-viewx",!S.viewx);
@@ -666,6 +670,7 @@ pre.hl{margin:0;background:#0d1117;color:#abb2bf;padding:16px 18px;overflow:auto
   $("#noteToggle").onchange=e=>{S.note=e.target.checked;document.body.classList.toggle("no-note",!S.note);save();};
   $("#imgToggle").onchange=e=>{S.inlineImg=e.target.checked;save();};
   $("#vidToggle").onchange=e=>{S.inlineVid=e.target.checked;save();};
+  if($("#unrollToggle")) $("#unrollToggle").onchange=e=>{S.unroll=e.target.checked;save();};
   // The Tweee bird, recolored purple when incognito — used for the toolbar mark and the favicon.
   function birdSVG(incog){
     const g1=incog?"#9b8dff":"#ff5d50", g2=incog?"#6a52e5":"#d62f23", wing=incog?"#4a3fb0":"#bf2a1f", ear=incog?"#5b4fd6":"#c52f24";
@@ -915,14 +920,16 @@ pre.hl{margin:0;background:#0d1117;color:#abb2bf;padding:16px 18px;overflow:auto
       text, isArticle:!!(t.is_article||a),
       media,
       dateMs:t.created_timestamp?t.created_timestamp*1000:Date.parse(t.created_at||""),
-      url:t.url, quote:t.quote?nFx(t.quote):null
+      url:t.url, quote:t.quote?nFx(t.quote):null,
+      id:t.id||null, replyToId:t.replying_to_status||null, replies:+t.replies||0
     };
   }
   function nVx(t){
     const ex=t.media_extended||[];
     return { name:dec(t.user_name), handle:t.user_screen_name, avatar:t.user_profile_image_url, text:dec(t.text||""), isArticle:false,
       media:ex.map(m=>({type:m.type==="image"?"photo":(m.type==="gif"?"gif":"video"),url:m.url,poster:m.thumbnail_url})).filter(m=>m.url),
-      dateMs:t.date_epoch?t.date_epoch*1000:Date.parse(t.date||""), url:t.tweetURL, quote:null };
+      dateMs:t.date_epoch?t.date_epoch*1000:Date.parse(t.date||""), url:t.tweetURL, quote:null,
+      id:t.tweetID||null, replyToId:t.replyingToID||null, replies:+t.replies||0 };
   }
   function nSyn(d){
     const md=d.mediaDetails||[];
@@ -932,7 +939,8 @@ pre.hl{margin:0;background:#0d1117;color:#abb2bf;padding:16px 18px;overflow:auto
     const note=d.note_tweet&&d.note_tweet.note_tweet_results&&d.note_tweet.note_tweet_results.result;
     const text=dec((note&&note.text)||d.text||d.full_text||""); const sn=d.user&&d.user.screen_name;
     return { name:dec(d.user&&d.user.name), handle:sn, avatar:d.user&&d.user.profile_image_url_https, text, isArticle:false, media,
-      dateMs:Date.parse(d.created_at||""), url:"https://x.com/"+(sn||"i")+"/status/"+(d.id_str||d.id||""), quote:d.quoted_tweet?nSyn(d.quoted_tweet):null };
+      dateMs:Date.parse(d.created_at||""), url:"https://x.com/"+(sn||"i")+"/status/"+(d.id_str||d.id||""), quote:d.quoted_tweet?nSyn(d.quoted_tweet):null,
+      id:d.id_str||d.id||null, replyToId:d.in_reply_to_status_id_str||(d.parent&&(d.parent.id_str||d.parent.id))||null, replies:+d.conversation_count||0 };
   }
 
   function tok(id){ return ((Number(id)/1e15)*Math.PI).toString(36).replace(/(0+|\.)/g,""); }
@@ -978,12 +986,56 @@ pre.hl{margin:0;background:#0d1117;color:#abb2bf;padding:16px 18px;overflow:auto
     throw new Error(errs.join(" · ")||"all sources failed");
   }
 
+  // Walk a thread (رشته) UP from the pasted tweet: every tweet carries a pointer to the
+  // tweet it replied to, so from the LAST tweet we follow parents to the first. X exposes
+  // no no-auth way to go forward (root → children), so unrolling means starting at the end.
+  // Stops at the first tweet that isn't a same-author self-reply (the thread's real start).
+  async function fetchThread(leaf, leafId){
+    const author=(leaf.handle||"").toLowerCase();
+    const chain=[leaf];
+    const seen=new Set([String(leafId), leaf.id&&String(leaf.id)].filter(Boolean));
+    let cur=leaf, guard=0;
+    while(cur && cur.replyToId && guard++ < 60){
+      const pid=String(cur.replyToId);
+      if(seen.has(pid)) break;
+      seen.add(pid);
+      let parent=null;
+      try{ parent=await fetchOne(pid); }catch(_){ break; }
+      if(!parent) break;
+      // A رشته is the author replying to themselves — stop once the parent is someone else's tweet.
+      if(author && parent.handle && parent.handle.toLowerCase()!==author) break;
+      if(!parent.id) parent.id=pid;
+      chain.push(parent);
+      setStatus("Unrolling thread… "+chain.length+" tweets","busy");
+      cur=parent;
+    }
+    chain.reverse(); // oldest (first tweet) → newest (the one you pasted)
+    return chain;
+  }
+
   async function run(){
     const ids=parseIds($("#url").value);
     if(!ids.length){ setStatus("No tweet URL or ID found.","err"); return; }
     setStatus("Fetching "+ids.length+" tweet"+(ids.length>1?"s":"")+"…","busy"); $("#fetchBtn").disabled=true;
     showSpinner();
-    const roots=[]; let lastErr="";
+    let roots=[]; let lastErr="";
+    // Single tweet + unroll on → reconstruct the whole رشته by walking up the reply chain.
+    if(ids.length===1 && S.unroll!==false){
+      try{
+        const leaf=await fetchOne(ids[0]);
+        roots=await fetchThread(leaf, ids[0]);
+      }catch(e){ lastErr=e.message; }
+      $("#fetchBtn").disabled=false;
+      if(!roots.length){ setStatus("Couldn't load any tweet ("+lastErr+"). Add a proxy in Settings → Proxy, or use the Manual tab.","err"); showEmpty(); return; }
+      renderDeck(roots); addHist(roots,ids);
+      const note = roots.length>1
+        ? "Unrolled "+roots.length+" tweets ✓"
+        : ((roots[0]&&roots[0].replies>0&&!roots[0].replyToId)
+            ? "Loaded 1 tweet ✓ · this is the first tweet — paste the LAST tweet of the رشته to unroll it"
+            : "Loaded 1 tweet ✓");
+      setStatus(note,"ok");
+      return;
+    }
     for(const id of ids){ try{ roots.push(await fetchOne(id)); }catch(e){ lastErr=e.message; } }
     $("#fetchBtn").disabled=false;
     if(!roots.length){ setStatus("Couldn't load any tweet ("+lastErr+"). Add a proxy in Settings → Proxy, or use the Manual tab.","err"); showEmpty(); return; }
