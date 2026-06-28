@@ -30,7 +30,7 @@ Tweee is a single self-contained HTML file. No build step, no backend, no tracki
 ## Features
 
 - **Per-line bidi typesetting** — each line's direction comes from its first strong character. Persian/Arabic lines render RTL in **Yekan Bakh**; Latin lines render LTR in your chosen serif/sans/mono.
-- **Quotes, threads & articles** — quote tweets render as separate nested cards (correct nesting in both LTR and RTL); **paste the last tweet of a thread (رشته) and Tweee unrolls the whole chain** by walking the author's self-replies up to the first tweet (toggle in Settings → Display → Threads); or paste several URLs for a manual numbered thread; X **Articles** and long "note" posts are fetched in full.
+- **Quotes, threads & articles** — quote tweets render as separate nested cards (correct nesting in both LTR and RTL); **paste the last tweet of a thread and Tweee unrolls the whole chain** by walking the author's self-replies up to the first tweet (toggle in Settings → Display → Threads); or paste several URLs for a manual numbered thread; X **Articles** and long "note" posts are fetched in full.
 - **Media** — photo grids, inline video/GIF, each with **Download** (with progress bar + cancel) and **Copy URL** buttons.
 - **Code blocks** — ` ``` ` fences and inline `` `code` `` rendered LTR in monospace with a copy button.
 - **Reading controls** — light/dark/auto theme, 5 card backgrounds, a large serif/sans/mono font set, Persian font, size, line height.
